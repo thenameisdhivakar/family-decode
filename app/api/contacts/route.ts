@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import mongoose from "mongoose";
 
-// Define the Schema inside the route or a separate models folder
+// Robust model initialization
 const ContactSchema = new mongoose.Schema({
-    name: String,
-    phone: String,
+    name: { type: String, required: true },
+    phone: { type: String, required: true },
     email: String,
     relation: String,
 }, { timestamps: true });
@@ -13,14 +13,24 @@ const ContactSchema = new mongoose.Schema({
 const Contact = mongoose.models.Contact || mongoose.model("Contact", ContactSchema);
 
 export async function GET() {
-    await connectDB();
-    const contacts = await Contact.find({}).sort({ createdAt: -1 });
-    return NextResponse.json(contacts);
+    try {
+        await connectDB();
+        const contacts = await Contact.find({}).sort({ createdAt: -1 });
+        return NextResponse.json(contacts);
+    } catch (error) {
+        console.error("GET Error:", error);
+        return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
+    }
 }
 
 export async function POST(req: Request) {
-    await connectDB();
-    const body = await req.json();
-    const newContact = await Contact.create(body);
-    return NextResponse.json(newContact);
+    try {
+        await connectDB();
+        const body = await req.json();
+        const newContact = await Contact.create(body);
+        return NextResponse.json(newContact);
+    } catch (error) {
+        console.error("POST Error:", error);
+        return NextResponse.json({ error: "Failed to create" }, { status: 500 });
+    }
 }
