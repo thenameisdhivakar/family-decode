@@ -64,7 +64,7 @@ export default function ExpensePage() {
     }, [activeTab, searchQuery, transactions, emis, loans]);
 
     // Logic: Handle Add Functionality for all types
-    const handleAddData = (e) => {
+    const handleAddData = (e: React.FormEvent) => {
         e.preventDefault();
         const id = Date.now();
         if (activeTab === 'Expenses') {
