@@ -20,7 +20,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             {/* Sidebar only shows if logged in AND not on login/signup/home */}
             {isLoggedIn && !isAuthPage && <Sidebar />}
 
-            <main className={`flex-1 min-h-screen px-16 py-16 bg-black ${isLoggedIn && !isAuthPage ? 'ml-64' : ''}`}>
+            <main className={`flex-1 min-h-screen ${isLoggedIn ? 'px-16 py-16' : ''} bg-black ${isLoggedIn && !isAuthPage ? 'ml-64' : ''}`}>
                 {children}
             </main>
         </div>
