@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Target, TrendingUp, Plus, Trophy, X, Trash2, User } from 'lucide-react';
+import { Target, TrendingUp, Plus, Trophy, X, Trash2, User, Loader2 } from 'lucide-react';
 
 export default function GoalsPage() {
     const [goals, setGoals] = useState<any[]>([]);
-    const [isLoaded, setIsLoaded] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -13,56 +13,80 @@ export default function GoalsPage() {
         target: '',
         current: '0',
         color: 'bg-blue-600',
-        createdBy: 'Dad' // Default role
+        createdBy: 'Dad'
     });
 
     useEffect(() => {
-        const saved = localStorage.getItem('family-goals');
-        if (saved) {
-            setGoals(JSON.parse(saved));
-        } else {
-            setGoals([
-                { id: '1', title: 'Japan Summer Trip', current: 6500, target: 10000, color: 'bg-blue-600', createdBy: 'Dad' },
-                { id: '2', title: 'Emergency Fund', current: 15000, target: 20000, color: 'bg-emerald-600', createdBy: 'Mom' }
-            ]);
-        }
-        setIsLoaded(true);
+        fetchGoals();
     }, []);
 
-    useEffect(() => {
-        if (isLoaded) {
-            localStorage.setItem('family-goals', JSON.stringify(goals));
+    const fetchGoals = async () => {
+        try {
+            const res = await fetch('/api/goals');
+            const data = await res.json();
+            if (res.ok) setGoals(data);
+        } catch (err) {
+            console.error("Failed to load goals");
+        } finally {
+            setIsLoading(false);
         }
-    }, [goals, isLoaded]);
-
-    const handleAddGoal = (e: React.FormEvent) => {
-        e.preventDefault();
-        const newGoal = {
-            id: Date.now().toString(),
-            ...formData,
-            target: Number(formData.target),
-            current: Number(formData.current),
-        };
-        setGoals([...goals, newGoal]);
-        setIsModalOpen(false);
-        setFormData({ title: '', target: '', current: '0', color: 'bg-blue-600', createdBy: 'Dad' });
     };
 
-    // --- FUNCTION TO UPDATE AMOUNT IN BETWEEN ---
-    const addFunds = (id: string) => {
+    const handleAddGoal = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const res = await fetch('/api/goals', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...formData,
+                    target: Number(formData.target),
+                    current: Number(formData.current),
+                }),
+            });
+            if (res.ok) {
+                const newGoal = await res.json();
+                setGoals([newGoal, ...goals]);
+                setIsModalOpen(false);
+                setFormData({ title: '', target: '', current: '0', color: 'bg-blue-600', createdBy: 'Dad' });
+            }
+        } catch (err) {
+            alert("Failed to save goal");
+        }
+    };
+
+    const addFunds = async (id: string, currentAmount: number) => {
         const amount = prompt("How much would you like to add?");
         if (amount && !isNaN(Number(amount))) {
-            setGoals(goals.map(g =>
-                g.id === id ? { ...g, current: g.current + Number(amount) } : g
-            ));
+            const newTotal = currentAmount + Number(amount);
+            try {
+                const res = await fetch('/api/goals', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, current: newTotal }),
+                });
+                if (res.ok) {
+                    setGoals(goals.map(g => g._id === id ? { ...g, current: newTotal } : g));
+                }
+            } catch (err) {
+                alert("Failed to update funds");
+            }
         }
     };
 
-    const removeGoal = (id: string) => {
-        setGoals(goals.filter(g => g.id !== id));
+    const removeGoal = async (id: string) => {
+        if (!confirm("Remove this milestone?")) return;
+        try {
+            const res = await fetch(`/api/goals?id=${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                setGoals(goals.filter(g => g._id !== id));
+            }
+        } catch (err) {
+            alert("Delete failed");
+        }
     };
 
-    if (!isLoaded) return null;
+    if (isLoading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-indigo-500 w-10 h-10" /></div>;
 
     return (
         <div className="space-y-8">
@@ -84,7 +108,7 @@ export default function GoalsPage() {
                     const percentage = Math.min(Math.round((goal.current / goal.target) * 100), 100);
 
                     return (
-                        <div key={goal.id} className="glass-card p-8 rounded-[2.5rem] group relative border border-white/5 overflow-hidden">
+                        <div key={goal._id} className="glass-card p-8 rounded-[2.5rem] group relative border border-white/5 overflow-hidden transition-all hover:bg-white/[0.02]">
                             <div className="flex justify-between items-start mb-6">
                                 <div className="flex items-center gap-3">
                                     <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/[0.05] text-white">
@@ -99,7 +123,7 @@ export default function GoalsPage() {
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button onClick={() => removeGoal(goal.id)} className="p-2 text-gray-700 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+                                    <button onClick={() => removeGoal(goal._id)} className="p-2 text-gray-700 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
                                         <Trash2 className="w-4 h-4" />
                                     </button>
                                     <Trophy className={`w-5 h-5 ${percentage === 100 ? 'text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 'text-gray-800'}`} />
@@ -123,9 +147,8 @@ export default function GoalsPage() {
                                     <div>
                                         <p className="text-3xl font-bold text-white font-mono">${goal.current.toLocaleString()}</p>
                                     </div>
-                                    {/* UPDATE AMOUNT BUTTON */}
                                     <button
-                                        onClick={() => addFunds(goal.id)}
+                                        onClick={() => addFunds(goal._id, goal.current)}
                                         className="bg-white/5 hover:bg-white/10 text-white text-xs font-bold px-4 py-2 rounded-lg border border-white/10 transition-all flex items-center gap-2"
                                     >
                                         <TrendingUp className="w-3 h-3 text-emerald-500" /> Add Funds
@@ -139,7 +162,7 @@ export default function GoalsPage() {
 
             {/* --- MODAL --- */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
                     <div className="glass-card w-full max-w-md p-8 rounded-[2.5rem] border border-white/10 shadow-2xl">
                         <div className="flex justify-between items-center mb-8">
                             <h2 className="text-2xl font-bold text-white">New Milestone</h2>
@@ -161,16 +184,16 @@ export default function GoalsPage() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-gray-500 mb-2">Goal Name</label>
+                                <label className="block text-[10px] font-bold text-gray-500 mb-2 uppercase">Goal Name</label>
                                 <input required type="text" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-indigo-500" placeholder="e.g. Dream House" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-[10px] font-bold text-gray-500  mb-2">Target ($)</label>
+                                    <label className="block text-[10px] font-bold text-gray-500 mb-2 uppercase">Target ($)</label>
                                     <input required type="number" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-indigo-500" value={formData.target} onChange={e => setFormData({ ...formData, target: e.target.value })} />
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] font-bold text-gray-500  mb-2">Initial ($)</label>
+                                    <label className="block text-[10px] font-bold text-gray-500 mb-2 uppercase">Initial ($)</label>
                                     <input type="number" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-indigo-500" value={formData.current} onChange={e => setFormData({ ...formData, current: e.target.value })} />
                                 </div>
                             </div>
