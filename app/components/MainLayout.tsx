@@ -1,26 +1,20 @@
 "use client";
-
-import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
-import Sidebar from './Sidebar'; // Ensure Sidebar is also in app/components/
+import { useState } from 'react';
+import Sidebar from './Sidebar';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const pathname = usePathname();
-
-    useEffect(() => {
-        const authStatus = localStorage.getItem("isLoggedIn");
-        setIsLoggedIn(authStatus === "true");
-    }, [pathname]);
-
-    const isAuthPage = pathname === '/login' || pathname === '/signup' || pathname === '/';
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     return (
-        <div className="flex">
-            {/* Sidebar only shows if logged in AND not on login/signup/home */}
-            {isLoggedIn && !isAuthPage && <Sidebar />}
+        <div className="flex min-h-screen bg-black">
+            {/* 1. Pass state to Sidebar so the button works */}
+            <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
 
-            <main className={`flex-1 min-h-screen ${isLoggedIn ? 'px-16 py-16' : ''} bg-black ${isLoggedIn && !isAuthPage ? 'ml-64' : ''}`}>
+            {/* 2. Main content area adjusts its margin based on sidebar state */}
+            <main
+                className={`flex-1 transition-all px-16 py-16 duration-300 ease-in-out ${isCollapsed ? 'ml-20' : 'ml-64'
+                    }`}
+            >
                 {children}
             </main>
         </div>

@@ -161,16 +161,16 @@ export default function GoalsPage() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Goal Name</label>
+                                <label className="block text-[10px] font-bold text-gray-500 mb-2">Goal Name</label>
                                 <input required type="text" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-indigo-500" placeholder="e.g. Dream House" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Target ($)</label>
+                                    <label className="block text-[10px] font-bold text-gray-500  mb-2">Target ($)</label>
                                     <input required type="number" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-indigo-500" value={formData.target} onChange={e => setFormData({ ...formData, target: e.target.value })} />
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Initial ($)</label>
+                                    <label className="block text-[10px] font-bold text-gray-500  mb-2">Initial ($)</label>
                                     <input type="number" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-indigo-500" value={formData.current} onChange={e => setFormData({ ...formData, current: e.target.value })} />
                                 </div>
                             </div>
