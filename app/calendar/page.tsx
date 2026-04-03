@@ -1,23 +1,36 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Plus, Clock, MoreVertical, Calendar as CalendarIcon, X, ChevronDoubleLeft, ChevronDoubleRight } from 'lucide-react';
+// FIX: Changed ChevronDoubleLeft/Right to ChevronsLeft/Right
+import {
+    ChevronLeft, ChevronRight, Plus, Clock, MoreVertical,
+    Calendar as CalendarIcon, X, ChevronsLeft, ChevronsRight
+} from 'lucide-react';
 import {
     format, addMonths, subMonths, addYears, subYears, startOfMonth, endOfMonth,
     startOfWeek, endOfWeek, isSameMonth, isSameDay, eachDayOfInterval
 } from 'date-fns';
 
+// 1. Define the Event Interface for Type Safety
+interface CalendarEvent {
+    id: number;
+    date: Date;
+    time: string;
+    title: string;
+    category: string;
+    color: string;
+}
+
 export default function CombinedCalendar() {
-    // State for the currently viewed month/year
     const [viewDate, setViewDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const [events, setEvents] = useState([
+    // 2. Apply the Interface to the state
+    const [events, setEvents] = useState<CalendarEvent[]>([
         { id: 1, date: new Date(), time: '10:00 AM', title: 'Developer Sync', category: 'Work', color: 'bg-blue-500' },
     ]);
 
-    // Calendar Grid Logic - Re-calculates whenever viewDate changes
     const monthStart = startOfMonth(viewDate);
     const monthEnd = endOfMonth(monthStart);
     const calendarDays = eachDayOfInterval({
@@ -27,7 +40,6 @@ export default function CombinedCalendar() {
 
     const dailyEvents = events.filter(event => isSameDay(event.date, selectedDate));
 
-    // --- NAVIGATION HANDLERS ---
     const nextMonth = () => setViewDate(addMonths(viewDate, 1));
     const prevMonth = () => setViewDate(subMonths(viewDate, 1));
     const nextYear = () => setViewDate(addYears(viewDate, 1));
@@ -35,7 +47,6 @@ export default function CombinedCalendar() {
 
     return (
         <div className="max-w-6xl mx-auto space-y-6 relative pb-10">
-            {/* Header with Fixed Navigation */}
             <header className="flex flex-col md:flex-row justify-between items-center bg-white/5 p-6 rounded-[2.5rem] border border-white/10 backdrop-blur-xl gap-4">
                 <div className="flex items-center gap-4">
                     <div className="p-3 bg-indigo-600/20 rounded-2xl">
@@ -50,15 +61,24 @@ export default function CombinedCalendar() {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    {/* Month/Year Switcher Controls */}
                     <div className="flex items-center bg-black/20 p-1 rounded-2xl border border-white/5">
-                        <button onClick={prevYear} className="p-2 hover:bg-white/5 rounded-xl text-gray-500 hover:text-white transition-all" title="Prev Year"><ChevronLeft className="w-4 h-4" />Y</button>
-                        <button onClick={prevMonth} className="p-2 hover:bg-white/10 rounded-xl text-gray-400 hover:text-indigo-400 transition-all"><ChevronLeft size={20} /></button>
+                        {/* FIX: Used ChevronsLeft for Year Navigation */}
+                        <button onClick={prevYear} className="p-2 hover:bg-white/5 rounded-xl text-gray-500 hover:text-white transition-all">
+                            <ChevronsLeft className="w-4 h-4" />
+                        </button>
+                        <button onClick={prevMonth} className="p-2 hover:bg-white/10 rounded-xl text-gray-400 hover:text-indigo-400 transition-all">
+                            <ChevronLeft size={20} />
+                        </button>
 
-                        <button onClick={() => setViewDate(new Date())} className="px-3 text-[10px] font-black uppercase text-indigo-400 hover:text-white transition-colors">Today</button>
+                        <button onClick={() => setViewDate(new Date())} className="px-3 text-[10px] font-black uppercase text-indigo-400 hover:text-white transition-colors tracking-tighter">Today</button>
 
-                        <button onClick={nextMonth} className="p-2 hover:bg-white/10 rounded-xl text-gray-400 hover:text-indigo-400 transition-all"><ChevronRight size={20} /></button>
-                        <button onClick={nextYear} className="p-2 hover:bg-white/5 rounded-xl text-gray-500 hover:text-white transition-all" title="Next Year">Y<ChevronRight className="w-4 h-4" /></button>
+                        <button onClick={nextMonth} className="p-2 hover:bg-white/10 rounded-xl text-gray-400 hover:text-indigo-400 transition-all">
+                            <ChevronRight size={20} />
+                        </button>
+                        {/* FIX: Used ChevronsRight for Year Navigation */}
+                        <button onClick={nextYear} className="p-2 hover:bg-white/5 rounded-xl text-gray-500 hover:text-white transition-all">
+                            <ChevronsRight className="w-4 h-4" />
+                        </button>
                     </div>
 
                     <button
@@ -71,8 +91,7 @@ export default function CombinedCalendar() {
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* LEFT: The Responsive Month Grid */}
-                <div className="lg:col-span-8 glass-card rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl">
+                <div className="lg:col-span-8 bg-white/[0.02] rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl">
                     <div className="grid grid-cols-7 border-b border-white/5 bg-white/[0.02]">
                         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
                             <div key={d} className="py-4 text-center text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">{d}</div>
@@ -118,7 +137,6 @@ export default function CombinedCalendar() {
                     </div>
                 </div>
 
-                {/* RIGHT: Modern Agenda View */}
                 <div className="lg:col-span-4 space-y-6">
                     <div className="flex items-center justify-between px-2">
                         <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 italic">
@@ -129,7 +147,7 @@ export default function CombinedCalendar() {
                     <div className="space-y-4">
                         {dailyEvents.length > 0 ? (
                             dailyEvents.map((item) => (
-                                <div key={item.id} className="group glass-card p-5 rounded-[2rem] border border-white/5 flex items-center gap-5 transition-all hover:border-white/20 hover:scale-[1.02]">
+                                <div key={item.id} className="group bg-white/[0.03] p-5 rounded-[2rem] border border-white/5 flex items-center gap-5 transition-all hover:border-white/20 hover:scale-[1.02]">
                                     <div className="text-right min-w-[60px]">
                                         <p className="text-xs font-black text-white">{item.time}</p>
                                         <p className="text-[9px] text-gray-500 font-bold uppercase mt-1">Today</p>
@@ -143,7 +161,7 @@ export default function CombinedCalendar() {
                                 </div>
                             ))
                         ) : (
-                            <div className="py-20 glass-card border-dashed border-white/10 rounded-[2.5rem] flex flex-col items-center justify-center space-y-3 opacity-40">
+                            <div className="py-20 bg-white/[0.01] border-dashed border-white/10 rounded-[2.5rem] flex flex-col items-center justify-center space-y-3 opacity-40">
                                 <Clock className="w-10 h-10 text-gray-600" />
                                 <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 text-center px-10">Zero Agenda Items Scheduled</p>
                             </div>
