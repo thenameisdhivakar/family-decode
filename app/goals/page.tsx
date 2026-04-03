@@ -1,209 +1,97 @@
-'use client';
+import React from 'react';
 
-import { useState, useEffect } from 'react';
-import { Target, TrendingUp, Plus, Trophy, X, Trash2, User, Loader2 } from 'lucide-react';
-
-export default function GoalsPage() {
-    const [goals, setGoals] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const [formData, setFormData] = useState({
-        title: '',
-        target: '',
-        current: '0',
-        color: 'bg-blue-600',
-        createdBy: 'Dad'
-    });
-
-    useEffect(() => {
-        fetchGoals();
-    }, []);
-
-    const fetchGoals = async () => {
-        try {
-            const res = await fetch('/api/goals');
-            const data = await res.json();
-            if (res.ok) setGoals(data);
-        } catch (err) {
-            console.error("Failed to load goals");
-        } finally {
-            setIsLoading(false);
+const ProjectPage = () => {
+    const projects = [
+        {
+            title: "Nexus Core System",
+            description: "High-performance architecture for distributed systems with real-time sync.",
+            tech: ["Node.js", "Redis", "MongoDB"],
+            status: "Production",
+            metrics: "99.9% Uptime"
+        },
+        {
+            title: "Lumina UI Kit",
+            description: "A comprehensive library of glassmorphic components for modern web apps.",
+            tech: ["React", "Tailwind", "Framer"],
+            status: "Beta",
+            metrics: "12k Downloads"
+        },
+        {
+            title: "Skyline Analytics",
+            description: "Predictive data modeling with interactive 3D visualization layers.",
+            tech: ["Next.js", "Three.js", "D3"],
+            status: "Completed",
+            metrics: "Sub-100ms Latency"
         }
-    };
-
-    const handleAddGoal = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            const res = await fetch('/api/goals', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...formData,
-                    target: Number(formData.target),
-                    current: Number(formData.current),
-                }),
-            });
-            if (res.ok) {
-                const newGoal = await res.json();
-                setGoals([newGoal, ...goals]);
-                setIsModalOpen(false);
-                setFormData({ title: '', target: '', current: '0', color: 'bg-blue-600', createdBy: 'Dad' });
-            }
-        } catch (err) {
-            alert("Failed to save goal");
-        }
-    };
-
-    const addFunds = async (id: string, currentAmount: number) => {
-        const amount = prompt("How much would you like to add?");
-        if (amount && !isNaN(Number(amount))) {
-            const newTotal = currentAmount + Number(amount);
-            try {
-                const res = await fetch('/api/goals', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id, current: newTotal }),
-                });
-                if (res.ok) {
-                    setGoals(goals.map(g => g._id === id ? { ...g, current: newTotal } : g));
-                }
-            } catch (err) {
-                alert("Failed to update funds");
-            }
-        }
-    };
-
-    const removeGoal = async (id: string) => {
-        if (!confirm("Remove this milestone?")) return;
-        try {
-            const res = await fetch(`/api/goals?id=${id}`, { method: 'DELETE' });
-            if (res.ok) {
-                setGoals(goals.filter(g => g._id !== id));
-            }
-        } catch (err) {
-            alert("Delete failed");
-        }
-    };
-
-    if (isLoading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-indigo-500 w-10 h-10" /></div>;
+    ];
 
     return (
-        <div className="space-y-8">
-            <header className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-white font-sans">Family Milestones</h1>
-                    <p className="text-gray-500 text-sm mt-1">Track shared objectives and progress.</p>
+        <div className="min-h-screen bg-black text-white p-6 md:p-20 font-sans selection:bg-blue-500/30">
+            {/* Pro Header with subtle mesh gradient background */}
+            <div className="relative max-w-7xl mx-auto mb-20">
+                <div className="absolute -top-24 -left-20 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
+
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div>
+                        <h2 className="text-blue-500 font-mono text-sm tracking-widest uppercase mb-3">Portfolio Architecture</h2>
+                        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">
+                            Selected <span className="text-gray-500">Works.</span>
+                        </h1>
+                    </div>
+                    <p className="text-gray-500 max-w-xs text-sm leading-relaxed border-l border-white/10 pl-4">
+                        Focused on building scalable full-stack solutions with high-end aesthetic precision.
+                    </p>
                 </div>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/20 active:scale-95"
-                >
-                    <Plus className="w-4 h-4" /> New Goal
-                </button>
-            </header>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {goals.map((goal) => {
-                    const percentage = Math.min(Math.round((goal.current / goal.target) * 100), 100);
-
-                    return (
-                        <div key={goal._id} className="glass-card p-8 rounded-[2.5rem] group relative border border-white/5 overflow-hidden transition-all hover:bg-white/[0.02]">
-                            <div className="flex justify-between items-start mb-6">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/[0.05] text-white">
-                                        <Target className="w-6 h-6 text-indigo-400" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xl font-bold text-white leading-tight">{goal.title}</h3>
-                                        <div className="flex items-center gap-1.5 mt-1">
-                                            <User className="w-3 h-3 text-gray-500" />
-                                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">By {goal.createdBy}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex gap-2">
-                                    <button onClick={() => removeGoal(goal._id)} className="p-2 text-gray-700 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                    <Trophy className={`w-5 h-5 ${percentage === 100 ? 'text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 'text-gray-800'}`} />
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest">
-                                    <span className="text-gray-400">Target: ${goal.target.toLocaleString()}</span>
-                                    <span className="text-white">{percentage}% Done</span>
-                                </div>
-
-                                <div className="h-2 w-full bg-white/[0.05] rounded-full overflow-hidden">
-                                    <div
-                                        className={`h-full ${goal.color} transition-all duration-700 shadow-lg`}
-                                        style={{ width: `${percentage}%` }}
-                                    />
-                                </div>
-
-                                <div className="flex justify-between items-end pt-2">
-                                    <div>
-                                        <p className="text-3xl font-bold text-white font-mono">${goal.current.toLocaleString()}</p>
-                                    </div>
-                                    <button
-                                        onClick={() => addFunds(goal._id, goal.current)}
-                                        className="bg-white/5 hover:bg-white/10 text-white text-xs font-bold px-4 py-2 rounded-lg border border-white/10 transition-all flex items-center gap-2"
-                                    >
-                                        <TrendingUp className="w-3 h-3 text-emerald-500" /> Add Funds
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
             </div>
 
-            {/* --- MODAL --- */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-                    <div className="glass-card w-full max-w-md p-8 rounded-[2.5rem] border border-white/10 shadow-2xl">
-                        <div className="flex justify-between items-center mb-8">
-                            <h2 className="text-2xl font-bold text-white">New Milestone</h2>
-                            <button onClick={() => setIsModalOpen(false)} className="text-gray-500 hover:text-white"><X className="w-6 h-6" /></button>
-                        </div>
+            {/* Project Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-7xl mx-auto">
+                {projects.map((project, index) => (
+                    <div
+                        key={index}
+                        className="group relative overflow-hidden rounded-3xl border border-white/5 bg-white/[0.02] transition-all duration-500 hover:border-white/20"
+                    >
+                        {/* Animated Spotight Effect (CSS Overlay) */}
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(circle_at_var(--x,_50%)_var(--y,_50%),rgba(255,255,255,0.06)_0%,transparent_50%)]" />
 
-                        <form onSubmit={handleAddGoal} className="space-y-5">
-                            <div>
-                                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Created By</label>
-                                <select
-                                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl p-3 text-white outline-none cursor-pointer focus:border-indigo-500"
-                                    value={formData.createdBy}
-                                    onChange={e => setFormData({ ...formData, createdBy: e.target.value })}
-                                >
-                                    <option value="Dad">Dad</option>
-                                    <option value="Mom">Mom</option>
-                                    <option value="Son">Son</option>
-                                    <option value="Sister">Sister</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-[10px] font-bold text-gray-500 mb-2 uppercase">Goal Name</label>
-                                <input required type="text" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-indigo-500" placeholder="e.g. Dream House" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-[10px] font-bold text-gray-500 mb-2 uppercase">Target ($)</label>
-                                    <input required type="number" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-indigo-500" value={formData.target} onChange={e => setFormData({ ...formData, target: e.target.value })} />
+                        <div className="relative p-8 md:p-10 flex flex-col h-full">
+                            <div className="flex justify-between items-start mb-12">
+                                <div className="px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-[10px] uppercase tracking-tighter font-bold">
+                                    {project.status}
                                 </div>
-                                <div>
-                                    <label className="block text-[10px] font-bold text-gray-500 mb-2 uppercase">Initial ($)</label>
-                                    <input type="number" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-indigo-500" value={formData.current} onChange={e => setFormData({ ...formData, current: e.target.value })} />
+                                <div className="text-gray-600 font-mono text-xs italic">
+                                    {project.metrics}
                                 </div>
                             </div>
-                            <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-bold mt-4 shadow-lg active:scale-95 transition-all">
-                                Save Milestone
-                            </button>
-                        </form>
+
+                            <h3 className="text-3xl font-bold mb-4 group-hover:text-blue-400 transition-colors duration-300">
+                                {project.title}
+                            </h3>
+
+                            <p className="text-gray-400 text-lg mb-8 line-clamp-2">
+                                {project.description}
+                            </p>
+
+                            <div className="mt-auto">
+                                <div className="flex flex-wrap gap-3 mb-8">
+                                    {project.tech.map((t, i) => (
+                                        <span key={i} className="text-xs font-medium text-gray-300 px-3 py-1 bg-white/5 rounded-lg backdrop-blur-md">
+                                            {t}
+                                        </span>
+                                    ))}
+                                </div>
+
+                                <button className="w-full py-4 rounded-xl bg-white text-black font-bold text-sm transition-all hover:bg-blue-500 hover:text-white flex items-center justify-center gap-2 group/btn">
+                                    Explore Case Study
+                                    <span className="transform transition-transform group-hover/btn:translate-x-1">→</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            )}
+                ))}
+            </div>
         </div>
     );
-}
+};
+
+export default ProjectPage;

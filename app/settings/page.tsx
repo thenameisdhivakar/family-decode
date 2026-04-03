@@ -89,7 +89,7 @@ export default function SettingsPage() {
     return (
         <div className="max-w-3xl space-y-8 animate-in fade-in duration-500">
             <header>
-                <h1 className="text-3xl font-bold tracking-tight text-white font-sans">Settings</h1>
+                <h1 className="text-3xl font-bold tracking-tight text-white ">Settings</h1>
                 <p className="text-gray-500 text-sm mt-1">Configure your FamilyDecode preferences.</p>
             </header>
 

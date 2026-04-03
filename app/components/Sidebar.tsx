@@ -4,7 +4,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
     LayoutGrid, Users, Calendar, ShieldCheck, Settings,
     LogOut, Heart, StickyNote, MessageSquare, Wallet,
-    Target, BarChart3, ChevronLeft, ChevronRight
+    Target, BarChart3, ChevronLeft, ChevronRight,
+    ShoppingCart // Add this one
 } from 'lucide-react';
 
 // Define Props Interface
@@ -22,13 +23,13 @@ const menuItems = [
     { name: 'Expense', icon: Wallet, href: '/expense' },
     { name: 'Analytics', icon: BarChart3, href: '/analytics' },
     { name: 'Calendar', icon: Calendar, href: '/calendar' },
+    { name: 'Shopping', icon: ShoppingCart, href: '/shopping' }, // Fixed icon here
     { name: 'Documents', icon: ShieldCheck, href: '/documents' },
     { name: 'Goals', icon: Target, href: '/goals' },
     { name: 'Messages', icon: MessageSquare, href: '/messages' },
     { name: 'Security', icon: ShieldCheck, href: '/security' },
     { name: 'Settings', icon: Settings, href: '/settings' },
 ];
-
 export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
     const pathname = usePathname();
     const router = useRouter();

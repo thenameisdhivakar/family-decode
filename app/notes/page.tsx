@@ -89,7 +89,7 @@ export default function NotesPage() {
         <div className="space-y-8 animate-in fade-in duration-500">
             <header className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-white font-sans">Family Notes</h1>
+                    <h1 className="text-3xl font-bold tracking-tight text-white ">Family Notes</h1>
                     <p className="text-gray-500 text-sm mt-1">Capture ideas, credentials, and reminders.</p>
                 </div>
                 <button
@@ -151,7 +151,7 @@ export default function NotesPage() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
                     <div className="glass-card w-full max-w-md p-8 rounded-[2.5rem] border border-white/10 shadow-2xl animate-in fade-in zoom-in duration-200">
                         <div className="flex justify-between items-center mb-8">
-                            <h2 className="text-2xl font-bold text-white font-sans">Create Note</h2>
+                            <h2 className="text-2xl font-bold text-white ">Create Note</h2>
                             <button onClick={() => setIsModalOpen(false)} className="text-gray-500 hover:text-white transition-colors">
                                 <X className="w-6 h-6" />
                             </button>

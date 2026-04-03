@@ -9,7 +9,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
     // Define all routes that should NOT have a sidebar
     // We add '/' for the landing page and '/login' for the login page
-    const hideSidebar = pathname === '/' || pathname === '/login';
+    const hideSidebar = pathname === '/signup' || pathname === '/login';
 
     // 1. Full-screen layout for landing and login
     if (hideSidebar) {

@@ -8,17 +8,30 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const router = useRouter();
 
-    const handleLogin = (e: React.FormEvent) => {
+    // Inside your LoginPage component
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        const users = JSON.parse(localStorage.getItem("users") || "[]");
-        const validUser = users.find((u: any) => u.email === email && u.password === password);
 
-        if (validUser) {
-            localStorage.setItem("isLoggedIn", "true");
-            localStorage.setItem("currentUser", email);
-            router.push("/overview");
-        } else {
-            alert("Invalid email or password");
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Keep status in localStorage for simple route guarding
+                localStorage.setItem("isLoggedIn", "true");
+                localStorage.setItem("currentUser", email);
+                router.push("/overview");
+            } else {
+                alert(data.message || "Invalid email or password");
+            }
+        } catch (error) {
+            console.error("Login error:", error);
+            alert("Something went wrong. Please try again.");
         }
     };
 

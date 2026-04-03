@@ -1,60 +1,155 @@
-import { ChevronLeft, ChevronRight, Plus, Clock } from 'lucide-react';
+'use client';
 
-const days = ['24', '25', '26', '27', '28', '29', '30'];
-const agenda = [
-    { time: '10:00 AM', title: 'Developer Sync', desc: 'Next.js 15 Migration', category: 'Work' },
-    { time: '02:00 PM', title: 'Family Budget Review', desc: 'Monthly expense audit', category: 'Finance' },
-    { time: '06:00 PM', title: 'Gym Session', desc: 'Leg day with Alex', category: 'Health' },
-];
+import { useState } from 'react';
+import { ChevronLeft, ChevronRight, Plus, Clock, MoreVertical, Calendar as CalendarIcon, X, ChevronDoubleLeft, ChevronDoubleRight } from 'lucide-react';
+import {
+    format, addMonths, subMonths, addYears, subYears, startOfMonth, endOfMonth,
+    startOfWeek, endOfWeek, isSameMonth, isSameDay, eachDayOfInterval
+} from 'date-fns';
 
-export default function CalendarPage() {
+export default function CombinedCalendar() {
+    // State for the currently viewed month/year
+    const [viewDate, setViewDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const [events, setEvents] = useState([
+        { id: 1, date: new Date(), time: '10:00 AM', title: 'Developer Sync', category: 'Work', color: 'bg-blue-500' },
+    ]);
+
+    // Calendar Grid Logic - Re-calculates whenever viewDate changes
+    const monthStart = startOfMonth(viewDate);
+    const monthEnd = endOfMonth(monthStart);
+    const calendarDays = eachDayOfInterval({
+        start: startOfWeek(monthStart),
+        end: endOfWeek(monthEnd)
+    });
+
+    const dailyEvents = events.filter(event => isSameDay(event.date, selectedDate));
+
+    // --- NAVIGATION HANDLERS ---
+    const nextMonth = () => setViewDate(addMonths(viewDate, 1));
+    const prevMonth = () => setViewDate(subMonths(viewDate, 1));
+    const nextYear = () => setViewDate(addYears(viewDate, 1));
+    const prevYear = () => setViewDate(subYears(viewDate, 1));
+
     return (
-        <div className="space-y-8">
-            <header className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-white">Calendar</h1>
-                    <p className="text-gray-500 text-sm mt-1">March 2026</p>
+        <div className="max-w-6xl mx-auto space-y-6 relative pb-10">
+            {/* Header with Fixed Navigation */}
+            <header className="flex flex-col md:flex-row justify-between items-center bg-white/5 p-6 rounded-[2.5rem] border border-white/10 backdrop-blur-xl gap-4">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-indigo-600/20 rounded-2xl">
+                        <CalendarIcon className="w-6 h-6 text-indigo-400" />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-black text-white tracking-tight leading-none">
+                            {format(viewDate, 'MMMM yyyy')}
+                        </h1>
+                        <p className="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">Management Hub</p>
+                    </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <button className="p-2 glass-card rounded-lg hover:text-blue-500"><ChevronLeft className="w-5 h-5" /></button>
-                    <button className="p-2 glass-card rounded-lg hover:text-blue-500"><ChevronRight className="w-5 h-5" /></button>
-                    <button className="ml-4 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2">
-                        <Plus className="w-4 h-4" /> Add Event
+
+                <div className="flex items-center gap-4">
+                    {/* Month/Year Switcher Controls */}
+                    <div className="flex items-center bg-black/20 p-1 rounded-2xl border border-white/5">
+                        <button onClick={prevYear} className="p-2 hover:bg-white/5 rounded-xl text-gray-500 hover:text-white transition-all" title="Prev Year"><ChevronLeft className="w-4 h-4" />Y</button>
+                        <button onClick={prevMonth} className="p-2 hover:bg-white/10 rounded-xl text-gray-400 hover:text-indigo-400 transition-all"><ChevronLeft size={20} /></button>
+
+                        <button onClick={() => setViewDate(new Date())} className="px-3 text-[10px] font-black uppercase text-indigo-400 hover:text-white transition-colors">Today</button>
+
+                        <button onClick={nextMonth} className="p-2 hover:bg-white/10 rounded-xl text-gray-400 hover:text-indigo-400 transition-all"><ChevronRight size={20} /></button>
+                        <button onClick={nextYear} className="p-2 hover:bg-white/5 rounded-xl text-gray-500 hover:text-white transition-all" title="Next Year">Y<ChevronRight className="w-4 h-4" /></button>
+                    </div>
+
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-xl shadow-indigo-600/20 transition-all active:scale-95"
+                    >
+                        <Plus className="w-5 h-5" /> Add Event
                     </button>
                 </div>
             </header>
 
-            {/* Day Picker */}
-            <div className="flex justify-between gap-4">
-                {days.map((day, i) => (
-                    <div key={day} className={`flex-1 py-6 rounded-3xl flex flex-col items-center justify-center transition-all cursor-pointer ${day === '30' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'glass-card text-gray-500 hover:bg-white/5'}`}>
-                        <span className="text-[10px] font-bold uppercase tracking-widest mb-2 opacity-60">
-                            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i]}
-                        </span>
-                        <span className="text-2xl font-bold">{day}</span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* LEFT: The Responsive Month Grid */}
+                <div className="lg:col-span-8 glass-card rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl">
+                    <div className="grid grid-cols-7 border-b border-white/5 bg-white/[0.02]">
+                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+                            <div key={d} className="py-4 text-center text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">{d}</div>
+                        ))}
                     </div>
-                ))}
-            </div>
+                    <div className="grid grid-cols-7">
+                        {calendarDays.map((day, i) => {
+                            const isToday = isSameDay(day, new Date());
+                            const isSelected = isSameDay(day, selectedDate);
+                            const isCurrentMonth = isSameMonth(day, monthStart);
+                            const hasEvents = events.some(e => isSameDay(e.date, day));
 
-            {/* Agenda */}
-            <div className="space-y-4 pt-4">
-                <h3 className="text-sm font-bold uppercase tracking-widest text-gray-500">Upcoming Agenda</h3>
-                {agenda.map((item) => (
-                    <div key={item.title} className="glass-card p-6 rounded-3xl flex items-center gap-8 group">
-                        <div className="min-w-[80px]">
-                            <p className="text-sm font-bold text-white">{item.time}</p>
-                            <p className="text-[10px] text-gray-500 font-bold uppercase mt-1">{item.category}</p>
-                        </div>
-                        <div className="h-8 w-[1px] bg-white/10" />
-                        <div className="flex-1">
-                            <h4 className="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors">{item.title}</h4>
-                            <p className="text-sm text-gray-500">{item.desc}</p>
-                        </div>
-                        <button className="p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Clock className="w-5 h-5 text-gray-600" />
-                        </button>
+                            return (
+                                <button
+                                    key={i}
+                                    onClick={() => setSelectedDate(day)}
+                                    className={`h-24 md:h-32 p-4 border-r border-b border-white/5 relative transition-all group overflow-hidden
+                                        ${!isCurrentMonth ? 'opacity-10 pointer-events-none' : 'hover:bg-white/[0.04]'}
+                                        ${isSelected ? 'bg-indigo-600/[0.07]' : ''}
+                                    `}
+                                >
+                                    <div className="flex justify-between items-start relative z-10">
+                                        <span className={`text-sm font-black ${isSelected ? 'text-indigo-400' : isToday ? 'text-white' : 'text-gray-500'}`}>
+                                            {format(day, 'd')}
+                                        </span>
+                                        {isToday && <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse" />}
+                                    </div>
+
+                                    {hasEvents && isCurrentMonth && (
+                                        <div className="mt-auto flex flex-wrap gap-1 relative z-10">
+                                            <div className="w-full h-1 bg-indigo-500/40 rounded-full overflow-hidden">
+                                                <div className="w-1/2 h-full bg-indigo-400" />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {isSelected && (
+                                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/10 to-transparent pointer-events-none" />
+                                    )}
+                                </button>
+                            );
+                        })}
                     </div>
-                ))}
+                </div>
+
+                {/* RIGHT: Modern Agenda View */}
+                <div className="lg:col-span-4 space-y-6">
+                    <div className="flex items-center justify-between px-2">
+                        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 italic">
+                            {format(selectedDate, 'eeee, MMMM do')}
+                        </h3>
+                    </div>
+
+                    <div className="space-y-4">
+                        {dailyEvents.length > 0 ? (
+                            dailyEvents.map((item) => (
+                                <div key={item.id} className="group glass-card p-5 rounded-[2rem] border border-white/5 flex items-center gap-5 transition-all hover:border-white/20 hover:scale-[1.02]">
+                                    <div className="text-right min-w-[60px]">
+                                        <p className="text-xs font-black text-white">{item.time}</p>
+                                        <p className="text-[9px] text-gray-500 font-bold uppercase mt-1">Today</p>
+                                    </div>
+                                    <div className={`w-1.5 h-12 rounded-full ${item.color} shadow-lg shadow-indigo-500/20`} />
+                                    <div className="flex-1">
+                                        <h4 className="text-md font-bold text-white group-hover:text-indigo-400 transition-colors tracking-tight">{item.title}</h4>
+                                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{item.category}</p>
+                                    </div>
+                                    <button className="text-gray-700 hover:text-white transition-colors"><MoreVertical size={18} /></button>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="py-20 glass-card border-dashed border-white/10 rounded-[2.5rem] flex flex-col items-center justify-center space-y-3 opacity-40">
+                                <Clock className="w-10 h-10 text-gray-600" />
+                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 text-center px-10">Zero Agenda Items Scheduled</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );
