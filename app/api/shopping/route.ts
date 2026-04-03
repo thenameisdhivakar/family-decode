@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { connectDB } from '../../lib/mongodb';
+import { NextRequest, NextResponse } from 'next/server'; // Added NextRequest
+import { connectDB } from '../../../app/lib/mongodb'
 import ShoppingItem from '../../models/ShoppingItem';
 
 export async function GET() {
@@ -12,7 +12,8 @@ export async function GET() {
     }
 }
 
-export async function POST(req) {
+// Added : NextRequest type here
+export async function POST(req: NextRequest) {
     await connectDB();
     try {
         const body = await req.json();
@@ -26,7 +27,8 @@ export async function POST(req) {
     }
 }
 
-export async function PUT(req) {
+// Added : NextRequest type here
+export async function PUT(req: NextRequest) {
     await connectDB();
     try {
         const { id, ...updates } = await req.json();
@@ -37,7 +39,8 @@ export async function PUT(req) {
     }
 }
 
-export async function DELETE(req) {
+// Added : NextRequest type here
+export async function DELETE(req: NextRequest) {
     await connectDB();
     try {
         const { searchParams } = new URL(req.url);

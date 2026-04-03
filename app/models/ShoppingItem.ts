@@ -1,15 +1,15 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema, model, models } from 'mongoose';
 
-const ShoppingItemSchema = new mongoose.Schema({
+const ShoppingSchema = new Schema({
     name: { type: String, required: true },
     category: { type: String, required: true },
     price: { type: Number, required: true },
     quantity: { type: Number, required: true },
-    unit: { type: String, required: true },
+    unit: { type: String, default: 'unit' },
     priority: { type: String, enum: ['Low', 'Medium', 'High'], default: 'Medium' },
-    status: { type: String, enum: ['shopping', 'purchased', 'hold'], default: 'shopping' },
-    date: { type: String, default: () => new Date().toLocaleDateString('en-GB') },
-    createdAt: { type: Date, default: Date.now }
-});
+    status: { type: String, enum: ['shopping', 'hold', 'purchased'], default: 'shopping' },
+    date: { type: String }
+}, { timestamps: true });
 
-export default mongoose.models.ShoppingItem || mongoose.model('ShoppingItem', ShoppingItemSchema);
+const ShoppingItem = models.ShoppingItem || model('ShoppingItem', ShoppingSchema);
+export default ShoppingItem;
