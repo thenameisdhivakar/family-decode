@@ -23,13 +23,6 @@ type EventType = {
     date: string;
 };
 
-const priorityStyles = {
-    High: "bg-red-500/20 text-red-300 border border-red-500/30",
-    Medium:
-        "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30",
-    Low: "bg-green-500/20 text-green-300 border border-green-500/30",
-};
-
 export default function CalendarPage() {
     const [events, setEvents] = useState<EventType[]>([]);
 
@@ -56,6 +49,39 @@ export default function CalendarPage() {
         priority: "",
     });
 
+    // PRIORITY COLORS
+    const priorityStyles: Record<
+        string,
+        {
+            card: string;
+            badge: string;
+        }
+    > = {
+        High: {
+            card: "bg-red-950/40 border-red-500/30",
+            badge:
+                "!bg-red-500 !text-white !border-red-400 shadow-lg shadow-red-500/20",
+        },
+
+        Medium: {
+            card: "bg-yellow-950/30 border-yellow-500/30",
+            badge:
+                "!bg-yellow-500 !text-black !border-yellow-400 shadow-lg shadow-yellow-500/20",
+        },
+
+        Low: {
+            card: "bg-green-950/30 border-green-500/30",
+            badge:
+                "!bg-green-500 !text-white !border-green-400 shadow-lg shadow-green-500/20",
+        },
+
+        Default: {
+            card: "bg-zinc-900 border-white/10",
+            badge:
+                "!bg-zinc-700 !text-white !border-zinc-600",
+        },
+    };
+
     // FETCH EVENTS
     const fetchEvents = async () => {
         try {
@@ -77,7 +103,7 @@ export default function CalendarPage() {
         fetchEvents();
     }, []);
 
-    // CREATE EVENT
+    // ADD EVENT
     const handleAddEvent = async () => {
         if (
             !formData.title ||
@@ -202,26 +228,27 @@ export default function CalendarPage() {
 
     return (
         <div className="min-h-screen bg-black text-white overflow-hidden relative">
+            {/* Glow */}
             <div className="absolute top-0 left-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
 
             <div className="absolute bottom-0 right-0 w-72 h-72 bg-purple-500/20 blur-[120px]" />
 
             <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
                 {/* Header */}
-                <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between mb-8 lg:mb-10">
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between mb-8">
                     <div>
-                        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+                        <h1 className="text-4xl lg:text-5xl font-bold">
                             Calendar
                         </h1>
 
-                        <p className="text-gray-400 mt-2 text-sm sm:text-base">
-                            Organize your events, meetings, and plans
+                        <p className="text-gray-400 mt-2">
+                            Organize your events
                         </p>
                     </div>
 
                     <button
                         onClick={() => setOpenModal(true)}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/10 border border-white/10 backdrop-blur-2xl px-5 py-3 rounded-2xl hover:bg-white/20 transition"
+                        className="flex items-center justify-center gap-2 bg-white/10 border border-white/10 px-5 py-3 rounded-2xl hover:bg-white/20 transition"
                     >
                         <Plus size={18} />
                         Add Event
@@ -231,23 +258,23 @@ export default function CalendarPage() {
                 {/* Layout */}
                 <div className="grid grid-cols-1 2xl:grid-cols-3 gap-6">
                     {/* Calendar */}
-                    <div className="2xl:col-span-2 bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-4 sm:p-6 overflow-hidden">
-                        {/* Top */}
-                        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between mb-8">
+                    <div className="2xl:col-span-2 bg-white/5 border border-white/10 rounded-3xl p-4 sm:p-6">
+                        {/* Month Header */}
+                        <div className="flex items-center justify-between mb-8">
                             <div>
-                                <h2 className="text-2xl sm:text-3xl font-semibold">
+                                <h2 className="text-3xl font-semibold">
                                     {monthName} {year}
                                 </h2>
 
-                                <p className="text-gray-400 mt-2 text-sm">
+                                <p className="text-gray-400 mt-1">
                                     Monthly overview
                                 </p>
                             </div>
 
-                            <div className="flex items-center gap-2 sm:gap-3">
+                            <div className="flex items-center gap-3">
                                 <button
                                     onClick={previousMonth}
-                                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 flex items-center justify-center transition"
+                                    className="w-11 h-11 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 flex items-center justify-center"
                                 >
                                     <ChevronLeft size={18} />
                                 </button>
@@ -256,22 +283,22 @@ export default function CalendarPage() {
                                     onClick={() =>
                                         setCurrentDate(new Date())
                                     }
-                                    className="px-4 py-2 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 transition text-sm sm:text-base"
+                                    className="px-4 py-2 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20"
                                 >
                                     Today
                                 </button>
 
                                 <button
                                     onClick={nextMonth}
-                                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 flex items-center justify-center transition"
+                                    className="w-11 h-11 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 flex items-center justify-center"
                                 >
                                     <ChevronRight size={18} />
                                 </button>
                             </div>
                         </div>
 
-                        {/* Days */}
-                        <div className="grid grid-cols-7 gap-2 sm:gap-4 mb-3 sm:mb-4">
+                        {/* Week Days */}
+                        <div className="grid grid-cols-7 gap-4 mb-4">
                             {[
                                 "Sun",
                                 "Mon",
@@ -280,24 +307,24 @@ export default function CalendarPage() {
                                 "Thu",
                                 "Fri",
                                 "Sat",
-                            ].map((day, index) => (
+                            ].map((day) => (
                                 <div
-                                    key={index}
-                                    className="text-center text-gray-500 text-[10px] sm:text-sm font-medium"
+                                    key={day}
+                                    className="text-center text-sm text-gray-500 font-medium"
                                 >
                                     {day}
                                 </div>
                             ))}
                         </div>
 
-                        {/* Dates */}
-                        <div className="grid grid-cols-7 gap-2 sm:gap-4">
+                        {/* Calendar Grid */}
+                        <div className="grid grid-cols-7 gap-4 ">
                             {calendarDays.map((day, index) => {
                                 if (!day) {
                                     return (
                                         <div
                                             key={index}
-                                            className="h-20 sm:h-28 lg:h-32"
+                                            className="h-32"
                                         />
                                     );
                                 }
@@ -317,13 +344,14 @@ export default function CalendarPage() {
                                 return (
                                     <div
                                         key={index}
-                                        className={`min-h-[80px] sm:min-h-[110px] lg:h-32 rounded-2xl sm:rounded-3xl border transition p-2 sm:p-3 flex flex-col overflow-hidden ${isToday(day)
+                                        className={`h-32 rounded-3xl border p-3 overflow-hidden transition ${isToday(day)
                                             ? "bg-cyan-500 text-black border-cyan-400"
                                             : "bg-white/5 border-white/10 hover:bg-white/10"
                                             }`}
                                     >
-                                        <div className="flex items-center justify-between mb-1 sm:mb-2">
-                                            <span className="font-medium text-[10px] sm:text-sm">
+                                        {/* Day */}
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="font-semibold">
                                                 {day}
                                             </span>
 
@@ -332,23 +360,29 @@ export default function CalendarPage() {
                                             )}
                                         </div>
 
-                                        <div className="space-y-1 overflow-hidden">
+                                        {/* Event Badges */}
+                                        <div className="space-y-1">
                                             {dayEvents
                                                 .slice(0, 2)
-                                                .map((event, i) => (
-                                                    <div
-                                                        key={i}
-                                                        className={`text-[8px] sm:text-[10px] px-1.5 sm:px-2 py-1 rounded-lg truncate ${priorityStyles[
-                                                            event.priority as keyof typeof priorityStyles
-                                                        ]
-                                                            }`}
-                                                    >
-                                                        {event.title}
-                                                    </div>
-                                                ))}
+                                                .map((event, i) => {
+                                                    const style =
+                                                        priorityStyles[
+                                                        event.priority
+                                                        ] ||
+                                                        priorityStyles.Default;
+
+                                                    return (
+                                                        <div
+                                                            key={i}
+                                                            className={`text-[10px] px-2 py-1 rounded-lg font-semibold border truncate ${style.badge}`}
+                                                        >
+                                                            {event.title}
+                                                        </div>
+                                                    );
+                                                })}
 
                                             {dayEvents.length > 2 && (
-                                                <p className="text-[8px] sm:text-[10px] text-gray-400">
+                                                <p className="text-[10px] text-gray-400">
                                                     +
                                                     {dayEvents.length - 2} more
                                                 </p>
@@ -360,12 +394,12 @@ export default function CalendarPage() {
                         </div>
                     </div>
 
-                    {/* Right Side */}
+                    {/* Sidebar */}
                     <div className="space-y-6">
-                        {/* Today Card */}
-                        <div className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-5 sm:p-6">
+                        {/* Today */}
+                        <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
                             <div className="flex items-center gap-4 mb-5">
-                                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-cyan-500/20 flex items-center justify-center">
+                                <div className="w-14 h-14 rounded-2xl bg-cyan-500/20 flex items-center justify-center">
                                     <CalendarDays
                                         className="text-cyan-400"
                                         size={24}
@@ -377,7 +411,7 @@ export default function CalendarPage() {
                                         Today
                                     </p>
 
-                                    <h2 className="text-2xl sm:text-3xl font-bold">
+                                    <h2 className="text-3xl font-bold">
                                         {today.toLocaleDateString(
                                             "en-US",
                                             {
@@ -389,174 +423,118 @@ export default function CalendarPage() {
                                 </div>
                             </div>
 
-                            <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
+                            <p className="text-gray-400">
                                 You have {events.length} scheduled
                                 events.
                             </p>
                         </div>
 
                         {/* Upcoming Events */}
-                        <div className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-5 sm:p-6">
-                            <div className="flex items-start justify-between gap-4 mb-6">
-                                <div>
-                                    <h2 className="text-xl sm:text-2xl font-semibold">
-                                        Upcoming Events
-                                    </h2>
-
-                                    <p className="text-gray-400 text-sm mt-2">
-                                        Filter and manage events
-                                    </p>
-                                </div>
+                        <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-2xl font-semibold">
+                                    Upcoming Events
+                                </h2>
 
                                 <button
                                     onClick={() =>
                                         setShowFilters(!showFilters)
                                     }
-                                    className="min-w-[44px] w-11 h-11 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 transition flex items-center justify-center"
+                                    className="w-11 h-11 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 flex items-center justify-center"
                                 >
                                     <Filter size={18} />
                                 </button>
                             </div>
 
-                            {/* Filters */}
-                            {showFilters && (
-                                <div className="space-y-4 mb-6">
-                                    <input
-                                        type="date"
-                                        value={dateFilter}
-                                        onChange={(e) =>
-                                            setDateFilter(
-                                                e.target.value
-                                            )
-                                        }
-                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none focus:border-cyan-500 text-white"
-                                    />
-
-                                    <select
-                                        value={priorityFilter}
-                                        onChange={(e) =>
-                                            setPriorityFilter(
-                                                e.target.value
-                                            )
-                                        }
-                                        className="w-full bg-zinc-900 text-white border border-white/10 rounded-2xl px-4 py-3 outline-none focus:border-cyan-500"
-                                    >
-                                        <option value="All">
-                                            All Priorities
-                                        </option>
-
-                                        <option value="High">
-                                            High Priority
-                                        </option>
-
-                                        <option value="Medium">
-                                            Medium Priority
-                                        </option>
-
-                                        <option value="Low">
-                                            Low Priority
-                                        </option>
-                                    </select>
-                                </div>
-                            )}
-
                             {/* Events */}
-                            <div className="space-y-4 sm:space-y-5 max-h-[700px] overflow-auto pr-1 sm:pr-2">
+                            <div className="space-y-4 max-h-[700px] overflow-auto pr-2 ">
                                 {loading ? (
-                                    <div className="text-center text-gray-500 py-10 text-sm">
+                                    <div className="text-center text-gray-500 py-10">
                                         Loading...
                                     </div>
                                 ) : filteredEvents.length === 0 ? (
-                                    <div className="text-center text-gray-500 py-10 text-sm">
+                                    <div className="text-center text-gray-500 py-10">
                                         No events found
                                     </div>
                                 ) : (
-                                    filteredEvents.map(
-                                        (event, index) => (
+                                    filteredEvents.map((event, index) => {
+                                        const style =
+                                            event.priority === "High"
+                                                ? {
+                                                    card: "bg-red-500/10 border-red-500/20",
+                                                    badge:
+                                                        "bg-red-500/15 text-red-300 border-red-500/20",
+                                                }
+                                                : event.priority === "Medium"
+                                                    ? {
+                                                        card: "bg-yellow-500/10 border-yellow-500/20",
+                                                        badge:
+                                                            "bg-yellow-500/15 text-yellow-300 border-yellow-500/20",
+                                                    }
+                                                    : event.priority === "Low"
+                                                        ? {
+                                                            card: "bg-green-500/10 border-green-500/20",
+                                                            badge:
+                                                                "bg-green-500/15 text-green-300 border-green-500/20",
+                                                        }
+                                                        : {
+                                                            card: "bg-zinc-900 border-white/10",
+                                                            badge:
+                                                                "bg-zinc-800 text-white border-white/10",
+                                                        };
+
+                                        return (
                                             <div
                                                 key={event._id}
                                                 onClick={() =>
-                                                    setSelectedEventIndex(
-                                                        index
-                                                    )
+                                                    setSelectedEventIndex(index)
                                                 }
-                                                className={`bg-white/5 border rounded-3xl p-4 sm:p-5 transition cursor-pointer ${selectedEventIndex ===
-                                                    index
-                                                    ? "border-red-500/40 bg-red-500/5"
-                                                    : "border-white/10 hover:bg-white/10"
-                                                    }`}
+                                                className={`rounded-3xl p-5 transition cursor-pointer border ${style.card}`}
                                             >
                                                 <div className="flex items-start justify-between gap-3">
-                                                    <div className="min-w-0">
-                                                        <h3 className="text-base sm:text-lg font-semibold truncate">
-                                                            {
-                                                                event.title
-                                                            }
+                                                    <div>
+                                                        <h3 className="text-lg font-semibold">
+                                                            {event.title}
                                                         </h3>
 
                                                         <span className="text-xs text-gray-400">
-                                                            {new Date(
-                                                                event.date
-                                                            ).toLocaleDateString(
-                                                                "en-US",
-                                                                {
-                                                                    month: "short",
-                                                                    day: "numeric",
-                                                                }
-                                                            )}
+                                                            {event.date}
                                                         </span>
                                                     </div>
 
                                                     <div
-                                                        className={`px-2 sm:px-3 py-1 rounded-xl text-[10px] sm:text-xs whitespace-nowrap ${priorityStyles[
-                                                            event.priority as keyof typeof priorityStyles
-                                                        ]
-                                                            }`}
+                                                        className={`px-3 py-1 rounded-xl text-xs font-semibold border ${style.badge}`}
                                                     >
-                                                        {
-                                                            event.priority
-                                                        }
+                                                        {event.priority}
                                                     </div>
                                                 </div>
 
-                                                <div className="flex items-center gap-2 text-gray-400 text-xs sm:text-sm mt-4">
+                                                <div className="flex items-center gap-2 text-gray-400 text-sm mt-4">
                                                     <Clock3 size={15} />
                                                     {event.time}
                                                 </div>
 
-                                                <div className="flex items-center gap-2 text-gray-400 text-xs sm:text-sm mt-2">
+                                                <div className="flex items-center gap-2 text-gray-400 text-sm mt-2">
                                                     <MapPin size={15} />
-
-                                                    <span className="truncate">
-                                                        {
-                                                            event.location
-                                                        }
-                                                    </span>
+                                                    {event.location}
                                                 </div>
 
-                                                {selectedEventIndex ===
-                                                    index && (
-                                                        <button
-                                                            onClick={(
-                                                                e
-                                                            ) => {
-                                                                e.stopPropagation();
+                                                {selectedEventIndex === index && (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
 
-                                                                handleDeleteEvent(
-                                                                    event._id
-                                                                );
-                                                            }}
-                                                            className="mt-5 w-full bg-red-500/15 border border-red-500/20 hover:bg-red-500/25 text-red-400 py-3 rounded-2xl flex items-center justify-center gap-2 transition"
-                                                        >
-                                                            <Trash2
-                                                                size={16}
-                                                            />
-                                                            Delete Event
-                                                        </button>
-                                                    )}
+                                                            handleDeleteEvent(event._id);
+                                                        }}
+                                                        className="mt-5 w-full bg-red-500/15 border border-red-500/20 hover:bg-red-500/25 text-red-400 py-3 rounded-2xl flex items-center justify-center gap-2 transition"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                        Delete Event
+                                                    </button>
+                                                )}
                                             </div>
-                                        )
-                                    )
+                                        );
+                                    })
                                 )}
                             </div>
                         </div>
@@ -567,9 +545,9 @@ export default function CalendarPage() {
             {/* Modal */}
             {openModal && (
                 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="w-full max-w-md bg-zinc-900 border border-white/10 rounded-3xl p-5 sm:p-6">
+                    <div className="w-full max-w-md bg-zinc-900 border border-white/10 rounded-3xl p-6">
                         <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-xl sm:text-2xl font-semibold">
+                            <h2 className="text-2xl font-semibold">
                                 Add Event
                             </h2>
 
@@ -594,7 +572,7 @@ export default function CalendarPage() {
                                         title: e.target.value,
                                     })
                                 }
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none focus:border-cyan-500 text-sm sm:text-base"
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none"
                             />
 
                             <input
@@ -608,10 +586,10 @@ export default function CalendarPage() {
                                             e.target.value,
                                     })
                                 }
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none focus:border-cyan-500 text-sm sm:text-base"
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none"
                             />
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-4">
                                 <input
                                     type="date"
                                     value={formData.date}
@@ -621,7 +599,7 @@ export default function CalendarPage() {
                                             date: e.target.value,
                                         })
                                     }
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none focus:border-cyan-500 text-white text-sm sm:text-base"
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none"
                                 />
 
                                 <input
@@ -633,7 +611,7 @@ export default function CalendarPage() {
                                             time: e.target.value,
                                         })
                                     }
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none focus:border-cyan-500 text-white text-sm sm:text-base"
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none"
                                 />
                             </div>
 
@@ -646,28 +624,28 @@ export default function CalendarPage() {
                                             e.target.value,
                                     })
                                 }
-                                className="w-full bg-zinc-900 text-white border border-white/10 rounded-2xl px-4 py-3 outline-none focus:border-cyan-500 text-sm sm:text-base"
+                                className="w-full bg-zinc-900 border border-white/10 rounded-2xl px-4 py-3 outline-none"
                             >
-                                <option value="" disabled>
+                                <option value="">
                                     Priority
                                 </option>
 
                                 <option value="High">
-                                    High Priority
+                                    High
                                 </option>
 
                                 <option value="Medium">
-                                    Medium Priority
+                                    Medium
                                 </option>
 
                                 <option value="Low">
-                                    Low Priority
+                                    Low
                                 </option>
                             </select>
 
                             <button
                                 onClick={handleAddEvent}
-                                className="w-full mt-4 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold py-3 rounded-2xl transition text-sm sm:text-base"
+                                className="w-full mt-4 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold py-3 rounded-2xl transition"
                             >
                                 Create Event
                             </button>
