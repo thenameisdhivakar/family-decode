@@ -3,32 +3,33 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "../../../lib/mongodb";
 import Event from "../../../models/Calendar";
 
-// UPDATE EVENT
 export async function PUT(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    context: {
+        params: Promise<{ id: string }>;
+    }
 ) {
     try {
         await connectDB();
 
+        const { id } = await context.params;
+
         const body = await req.json();
 
-        const updatedEvent = await Event.findByIdAndUpdate(
-            params.id,
-            body,
-            {
-                new: true,
-            }
-        );
+        const updatedEvent =
+            await Event.findByIdAndUpdate(
+                id,
+                body,
+                {
+                    new: true,
+                }
+            );
 
-        return NextResponse.json(updatedEvent, {
-            status: 200,
-        });
+        return NextResponse.json(updatedEvent);
     } catch (error: any) {
         return NextResponse.json(
             {
-                message: "Failed to update event",
-                error: error.message,
+                message: error.message,
             },
             {
                 status: 500,
@@ -37,29 +38,26 @@ export async function PUT(
     }
 }
 
-// DELETE EVENT
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    context: {
+        params: Promise<{ id: string }>;
+    }
 ) {
     try {
         await connectDB();
 
-        await Event.findByIdAndDelete(params.id);
+        const { id } = await context.params;
 
-        return NextResponse.json(
-            {
-                message: "Event deleted successfully",
-            },
-            {
-                status: 200,
-            }
-        );
+        await Event.findByIdAndDelete(id);
+
+        return NextResponse.json({
+            message: "Deleted successfully",
+        });
     } catch (error: any) {
         return NextResponse.json(
             {
-                message: "Failed to delete event",
-                error: error.message,
+                message: error.message,
             },
             {
                 status: 500,
