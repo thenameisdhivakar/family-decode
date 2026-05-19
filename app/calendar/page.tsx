@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
 import {
     CalendarDays,
     Plus,
@@ -13,29 +14,14 @@ import {
     Trash2,
 } from "lucide-react";
 
-const defaultEvents = [
-    {
-        title: "UI Design Meeting",
-        time: "09:00",
-        location: "Google Meet",
-        priority: "High",
-        date: "2026-05-08",
-    },
-    {
-        title: "Gym Workout",
-        time: "17:00",
-        location: "Fitness Club",
-        priority: "Medium",
-        date: "2026-05-15",
-    },
-    {
-        title: "Project Review",
-        time: "20:30",
-        location: "Office",
-        priority: "Low",
-        date: "2026-05-22",
-    },
-];
+type EventType = {
+    _id?: string;
+    title: string;
+    time: string;
+    location: string;
+    priority: string;
+    date: string;
+};
 
 const priorityStyles = {
     High: "bg-red-500/20 text-red-300 border border-red-500/30",
@@ -45,7 +31,7 @@ const priorityStyles = {
 };
 
 export default function CalendarPage() {
-    const [events, setEvents] = useState(defaultEvents);
+    const [events, setEvents] = useState<EventType[]>([]);
 
     const [openModal, setOpenModal] = useState(false);
 
@@ -60,6 +46,8 @@ export default function CalendarPage() {
 
     const [dateFilter, setDateFilter] = useState("");
 
+    const [loading, setLoading] = useState(false);
+
     const [formData, setFormData] = useState({
         title: "",
         time: "",
@@ -68,16 +56,106 @@ export default function CalendarPage() {
         priority: "",
     });
 
+    // FETCH EVENTS
+    const fetchEvents = async () => {
+        try {
+            setLoading(true);
+
+            const res = await fetch("/api/calendar");
+
+            const data = await res.json();
+
+            setEvents(data);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchEvents();
+    }, []);
+
+    // CREATE EVENT
+    const handleAddEvent = async () => {
+        if (
+            !formData.title ||
+            !formData.time ||
+            !formData.location ||
+            !formData.date ||
+            !formData.priority
+        ) {
+            return;
+        }
+
+        try {
+            const res = await fetch("/api/calendar", {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                },
+
+                body: JSON.stringify(formData),
+            });
+
+            const data = await res.json();
+
+            setEvents((prev) => [data, ...prev]);
+
+            setFormData({
+                title: "",
+                time: "",
+                location: "",
+                date: "",
+                priority: "",
+            });
+
+            setOpenModal(false);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    // DELETE EVENT
+    const handleDeleteEvent = async (id?: string) => {
+        if (!id) return;
+
+        try {
+            await fetch(`/api/calendar/${id}`, {
+                method: "DELETE",
+            });
+
+            setEvents((prev) =>
+                prev.filter((event) => event._id !== id)
+            );
+
+            setSelectedEventIndex(null);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     const month = currentDate.getMonth();
+
     const year = currentDate.getFullYear();
 
     const monthName = currentDate.toLocaleString("default", {
         month: "long",
     });
 
-    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    const firstDayOfMonth = new Date(
+        year,
+        month,
+        1
+    ).getDay();
 
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInMonth = new Date(
+        year,
+        month + 1,
+        0
+    ).getDate();
 
     const calendarDays = useMemo(() => {
         const days = [];
@@ -104,40 +182,6 @@ export default function CalendarPage() {
         return matchesPriority && matchesDate;
     });
 
-    const handleAddEvent = () => {
-        if (
-            !formData.title ||
-            !formData.time ||
-            !formData.location ||
-            !formData.date ||
-            !formData.priority
-        ) {
-            return;
-        }
-
-        setEvents([...events, formData]);
-
-        setFormData({
-            title: "",
-            time: "",
-            location: "",
-            date: "",
-            priority: "",
-        });
-
-        setOpenModal(false);
-    };
-
-    const handleDeleteEvent = (indexToDelete: number) => {
-        setEvents(
-            events.filter(
-                (_, index) => index !== indexToDelete
-            )
-        );
-
-        setSelectedEventIndex(null);
-    };
-
     const previousMonth = () => {
         setCurrentDate(new Date(year, month - 1, 1));
     };
@@ -158,8 +202,8 @@ export default function CalendarPage() {
 
     return (
         <div className="min-h-screen bg-black text-white overflow-hidden relative">
-            {/* Glow */}
             <div className="absolute top-0 left-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
+
             <div className="absolute bottom-0 right-0 w-72 h-72 bg-purple-500/20 blur-[120px]" />
 
             <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
@@ -274,8 +318,8 @@ export default function CalendarPage() {
                                     <div
                                         key={index}
                                         className={`min-h-[80px] sm:min-h-[110px] lg:h-32 rounded-2xl sm:rounded-3xl border transition p-2 sm:p-3 flex flex-col overflow-hidden ${isToday(day)
-                                                ? "bg-cyan-500 text-black border-cyan-400"
-                                                : "bg-white/5 border-white/10 hover:bg-white/10"
+                                            ? "bg-cyan-500 text-black border-cyan-400"
+                                            : "bg-white/5 border-white/10 hover:bg-white/10"
                                             }`}
                                     >
                                         <div className="flex items-center justify-between mb-1 sm:mb-2">
@@ -296,7 +340,7 @@ export default function CalendarPage() {
                                                         key={i}
                                                         className={`text-[8px] sm:text-[10px] px-1.5 sm:px-2 py-1 rounded-lg truncate ${priorityStyles[
                                                             event.priority as keyof typeof priorityStyles
-                                                            ]
+                                                        ]
                                                             }`}
                                                     >
                                                         {event.title}
@@ -334,22 +378,25 @@ export default function CalendarPage() {
                                     </p>
 
                                     <h2 className="text-2xl sm:text-3xl font-bold">
-                                        {today.toLocaleDateString("en-US", {
-                                            month: "short",
-                                            day: "numeric",
-                                        })}
+                                        {today.toLocaleDateString(
+                                            "en-US",
+                                            {
+                                                month: "short",
+                                                day: "numeric",
+                                            }
+                                        )}
                                     </h2>
                                 </div>
                             </div>
 
                             <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
-                                You have {events.length} scheduled events.
+                                You have {events.length} scheduled
+                                events.
                             </p>
                         </div>
 
                         {/* Upcoming Events */}
                         <div className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-5 sm:p-6">
-                            {/* Header */}
                             <div className="flex items-start justify-between gap-4 mb-6">
                                 <div>
                                     <h2 className="text-xl sm:text-2xl font-semibold">
@@ -378,7 +425,9 @@ export default function CalendarPage() {
                                         type="date"
                                         value={dateFilter}
                                         onChange={(e) =>
-                                            setDateFilter(e.target.value)
+                                            setDateFilter(
+                                                e.target.value
+                                            )
                                         }
                                         className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none focus:border-cyan-500 text-white"
                                     />
@@ -413,80 +462,101 @@ export default function CalendarPage() {
 
                             {/* Events */}
                             <div className="space-y-4 sm:space-y-5 max-h-[700px] overflow-auto pr-1 sm:pr-2">
-                                {filteredEvents.map((event, index) => (
-                                    <div
-                                        key={index}
-                                        onClick={() =>
-                                            setSelectedEventIndex(index)
-                                        }
-                                        className={`bg-white/5 border rounded-3xl p-4 sm:p-5 transition cursor-pointer ${selectedEventIndex === index
-                                                ? "border-red-500/40 bg-red-500/5"
-                                                : "border-white/10 hover:bg-white/10"
-                                            }`}
-                                    >
-                                        <div className="flex items-start justify-between gap-3">
-                                            <div className="min-w-0">
-                                                <h3 className="text-base sm:text-lg font-semibold truncate">
-                                                    {event.title}
-                                                </h3>
-
-                                                <span className="text-xs text-gray-400">
-                                                    {new Date(
-                                                        event.date
-                                                    ).toLocaleDateString(
-                                                        "en-US",
-                                                        {
-                                                            month: "short",
-                                                            day: "numeric",
-                                                        }
-                                                    )}
-                                                </span>
-                                            </div>
-
-                                            <div
-                                                className={`px-2 sm:px-3 py-1 rounded-xl text-[10px] sm:text-xs whitespace-nowrap ${priorityStyles[
-                                                    event.priority as keyof typeof priorityStyles
-                                                    ]
-                                                    }`}
-                                            >
-                                                {event.priority}
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center gap-2 text-gray-400 text-xs sm:text-sm mt-4">
-                                            <Clock3 size={15} />
-                                            {event.time}
-                                        </div>
-
-                                        <div className="flex items-center gap-2 text-gray-400 text-xs sm:text-sm mt-2">
-                                            <MapPin size={15} />
-                                            <span className="truncate">
-                                                {event.location}
-                                            </span>
-                                        </div>
-
-                                        {/* Delete Button */}
-                                        {selectedEventIndex === index && (
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleDeleteEvent(
-                                                        index
-                                                    );
-                                                }}
-                                                className="mt-5 w-full bg-red-500/15 border border-red-500/20 hover:bg-red-500/25 text-red-400 py-3 rounded-2xl flex items-center justify-center gap-2 transition"
-                                            >
-                                                <Trash2 size={16} />
-                                                Delete Event
-                                            </button>
-                                        )}
+                                {loading ? (
+                                    <div className="text-center text-gray-500 py-10 text-sm">
+                                        Loading...
                                     </div>
-                                ))}
-
-                                {filteredEvents.length === 0 && (
+                                ) : filteredEvents.length === 0 ? (
                                     <div className="text-center text-gray-500 py-10 text-sm">
                                         No events found
                                     </div>
+                                ) : (
+                                    filteredEvents.map(
+                                        (event, index) => (
+                                            <div
+                                                key={event._id}
+                                                onClick={() =>
+                                                    setSelectedEventIndex(
+                                                        index
+                                                    )
+                                                }
+                                                className={`bg-white/5 border rounded-3xl p-4 sm:p-5 transition cursor-pointer ${selectedEventIndex ===
+                                                    index
+                                                    ? "border-red-500/40 bg-red-500/5"
+                                                    : "border-white/10 hover:bg-white/10"
+                                                    }`}
+                                            >
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div className="min-w-0">
+                                                        <h3 className="text-base sm:text-lg font-semibold truncate">
+                                                            {
+                                                                event.title
+                                                            }
+                                                        </h3>
+
+                                                        <span className="text-xs text-gray-400">
+                                                            {new Date(
+                                                                event.date
+                                                            ).toLocaleDateString(
+                                                                "en-US",
+                                                                {
+                                                                    month: "short",
+                                                                    day: "numeric",
+                                                                }
+                                                            )}
+                                                        </span>
+                                                    </div>
+
+                                                    <div
+                                                        className={`px-2 sm:px-3 py-1 rounded-xl text-[10px] sm:text-xs whitespace-nowrap ${priorityStyles[
+                                                            event.priority as keyof typeof priorityStyles
+                                                        ]
+                                                            }`}
+                                                    >
+                                                        {
+                                                            event.priority
+                                                        }
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-2 text-gray-400 text-xs sm:text-sm mt-4">
+                                                    <Clock3 size={15} />
+                                                    {event.time}
+                                                </div>
+
+                                                <div className="flex items-center gap-2 text-gray-400 text-xs sm:text-sm mt-2">
+                                                    <MapPin size={15} />
+
+                                                    <span className="truncate">
+                                                        {
+                                                            event.location
+                                                        }
+                                                    </span>
+                                                </div>
+
+                                                {selectedEventIndex ===
+                                                    index && (
+                                                        <button
+                                                            onClick={(
+                                                                e
+                                                            ) => {
+                                                                e.stopPropagation();
+
+                                                                handleDeleteEvent(
+                                                                    event._id
+                                                                );
+                                                            }}
+                                                            className="mt-5 w-full bg-red-500/15 border border-red-500/20 hover:bg-red-500/25 text-red-400 py-3 rounded-2xl flex items-center justify-center gap-2 transition"
+                                                        >
+                                                            <Trash2
+                                                                size={16}
+                                                            />
+                                                            Delete Event
+                                                        </button>
+                                                    )}
+                                            </div>
+                                        )
+                                    )
                                 )}
                             </div>
                         </div>
@@ -498,21 +568,21 @@ export default function CalendarPage() {
             {openModal && (
                 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                     <div className="w-full max-w-md bg-zinc-900 border border-white/10 rounded-3xl p-5 sm:p-6">
-                        {/* Header */}
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-xl sm:text-2xl font-semibold">
                                 Add Event
                             </h2>
 
                             <button
-                                onClick={() => setOpenModal(false)}
+                                onClick={() =>
+                                    setOpenModal(false)
+                                }
                                 className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center"
                             >
                                 <X size={18} />
                             </button>
                         </div>
 
-                        {/* Form */}
                         <div className="space-y-4">
                             <input
                                 type="text"
@@ -534,13 +604,13 @@ export default function CalendarPage() {
                                 onChange={(e) =>
                                     setFormData({
                                         ...formData,
-                                        location: e.target.value,
+                                        location:
+                                            e.target.value,
                                     })
                                 }
                                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none focus:border-cyan-500 text-sm sm:text-base"
                             />
 
-                            {/* Date + Time */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <input
                                     type="date"
@@ -567,13 +637,13 @@ export default function CalendarPage() {
                                 />
                             </div>
 
-                            {/* Priority */}
                             <select
                                 value={formData.priority}
                                 onChange={(e) =>
                                     setFormData({
                                         ...formData,
-                                        priority: e.target.value,
+                                        priority:
+                                            e.target.value,
                                     })
                                 }
                                 className="w-full bg-zinc-900 text-white border border-white/10 rounded-2xl px-4 py-3 outline-none focus:border-cyan-500 text-sm sm:text-base"
@@ -595,7 +665,6 @@ export default function CalendarPage() {
                                 </option>
                             </select>
 
-                            {/* Button */}
                             <button
                                 onClick={handleAddEvent}
                                 className="w-full mt-4 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold py-3 rounded-2xl transition text-sm sm:text-base"
