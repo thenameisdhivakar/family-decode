@@ -1,97 +1,213 @@
-import React from 'react';
+import {
+    Target,
+    Plus,
+    Trophy,
+    CheckCircle2,
+    Clock3,
+    Flame,
+} from "lucide-react";
 
-const ProjectPage = () => {
-    const projects = [
-        {
-            title: "Nexus Core System",
-            description: "High-performance architecture for distributed systems with real-time sync.",
-            tech: ["Node.js", "Redis", "MongoDB"],
-            status: "Production",
-            metrics: "99.9% Uptime"
-        },
-        {
-            title: "Lumina UI Kit",
-            description: "A comprehensive library of glassmorphic components for modern web apps.",
-            tech: ["React", "Tailwind", "Framer"],
-            status: "Beta",
-            metrics: "12k Downloads"
-        },
-        {
-            title: "Skyline Analytics",
-            description: "Predictive data modeling with interactive 3D visualization layers.",
-            tech: ["Next.js", "Three.js", "D3"],
-            status: "Completed",
-            metrics: "Sub-100ms Latency"
-        }
-    ];
+const goals = [
+    {
+        title: "Learn System Design",
+        progress: 78,
+        category: "Career",
+        deadline: "12 Days Left",
+        color: "from-cyan-500 to-blue-500",
+    },
+    {
+        title: "Workout 5x a Week",
+        progress: 64,
+        category: "Fitness",
+        deadline: "Ongoing",
+        color: "from-pink-500 to-rose-500",
+    },
+    {
+        title: "Save ₹2 Lakhs",
+        progress: 45,
+        category: "Finance",
+        deadline: "4 Months Left",
+        color: "from-emerald-500 to-green-500",
+    },
+];
 
+export default function GoalsPage() {
     return (
-        <div className="min-h-screen bg-black text-white p-6 md:p-20 font-sans selection:bg-blue-500/30">
-            {/* Pro Header with subtle mesh gradient background */}
-            <div className="relative max-w-7xl mx-auto mb-20">
-                <div className="absolute -top-24 -left-20 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="min-h-screen bg-black text-white overflow-hidden relative">
+            {/* Background Glow */}
+            <div className="absolute top-0 left-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
+            <div className="absolute bottom-0 right-0 w-72 h-72 bg-purple-500/20 blur-[120px]" />
 
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="relative z-10 p-8">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-10">
                     <div>
-                        <h2 className="text-blue-500 font-mono text-sm tracking-widest uppercase mb-3">Portfolio Architecture</h2>
-                        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">
-                            Selected <span className="text-gray-500">Works.</span>
+                        <h1 className="text-5xl font-bold tracking-tight">
+                            Goals Tracker
                         </h1>
+
+                        <p className="text-gray-400 mt-3">
+                            Stay focused and achieve your targets
+                        </p>
                     </div>
-                    <p className="text-gray-500 max-w-xs text-sm leading-relaxed border-l border-white/10 pl-4">
-                        Focused on building scalable full-stack solutions with high-end aesthetic precision.
-                    </p>
+
+                    <button className="flex items-center gap-2 bg-white/10 border border-white/10 backdrop-blur-2xl px-5 py-3 rounded-2xl hover:bg-white/20 transition">
+                        <Plus size={18} />
+                        Add Goal
+                    </button>
                 </div>
-            </div>
 
-            {/* Project Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-7xl mx-auto">
-                {projects.map((project, index) => (
-                    <div
-                        key={index}
-                        className="group relative overflow-hidden rounded-3xl border border-white/5 bg-white/[0.02] transition-all duration-500 hover:border-white/20"
-                    >
-                        {/* Animated Spotight Effect (CSS Overlay) */}
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(circle_at_var(--x,_50%)_var(--y,_50%),rgba(255,255,255,0.06)_0%,transparent_50%)]" />
-
-                        <div className="relative p-8 md:p-10 flex flex-col h-full">
-                            <div className="flex justify-between items-start mb-12">
-                                <div className="px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-[10px] uppercase tracking-tighter font-bold">
-                                    {project.status}
-                                </div>
-                                <div className="text-gray-600 font-mono text-xs italic">
-                                    {project.metrics}
-                                </div>
+                {/* Top Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+                    {/* Active Goals */}
+                    <div className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-6">
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="w-14 h-14 rounded-2xl bg-cyan-500/20 flex items-center justify-center">
+                                <Target className="text-cyan-400" size={28} />
                             </div>
 
-                            <h3 className="text-3xl font-bold mb-4 group-hover:text-blue-400 transition-colors duration-300">
-                                {project.title}
-                            </h3>
+                            <span className="text-sm text-green-400">
+                                +2 This Week
+                            </span>
+                        </div>
 
-                            <p className="text-gray-400 text-lg mb-8 line-clamp-2">
-                                {project.description}
-                            </p>
+                        <p className="text-gray-400 text-sm mb-2">
+                            Active Goals
+                        </p>
 
-                            <div className="mt-auto">
-                                <div className="flex flex-wrap gap-3 mb-8">
-                                    {project.tech.map((t, i) => (
-                                        <span key={i} className="text-xs font-medium text-gray-300 px-3 py-1 bg-white/5 rounded-lg backdrop-blur-md">
-                                            {t}
-                                        </span>
-                                    ))}
+                        <h2 className="text-4xl font-bold">12</h2>
+                    </div>
+
+                    {/* Completed */}
+                    <div className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-6">
+                        <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 flex items-center justify-center mb-6">
+                            <CheckCircle2
+                                className="text-emerald-400"
+                                size={28}
+                            />
+                        </div>
+
+                        <p className="text-gray-400 text-sm mb-2">
+                            Completed
+                        </p>
+
+                        <h2 className="text-4xl font-bold">28</h2>
+                    </div>
+
+                    {/* Streak */}
+                    <div className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-6">
+                        <div className="w-14 h-14 rounded-2xl bg-orange-500/20 flex items-center justify-center mb-6">
+                            <Flame className="text-orange-400" size={28} />
+                        </div>
+
+                        <p className="text-gray-400 text-sm mb-2">
+                            Current Streak
+                        </p>
+
+                        <h2 className="text-4xl font-bold">18 Days</h2>
+                    </div>
+
+                    {/* Achievement */}
+                    <div className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-6">
+                        <div className="w-14 h-14 rounded-2xl bg-yellow-500/20 flex items-center justify-center mb-6">
+                            <Trophy className="text-yellow-400" size={28} />
+                        </div>
+
+                        <p className="text-gray-400 text-sm mb-2">
+                            Achievements
+                        </p>
+
+                        <h2 className="text-4xl font-bold">14</h2>
+                    </div>
+                </div>
+
+                {/* Goals Section */}
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    {/* Goals List */}
+                    <div className="xl:col-span-2 space-y-6">
+                        {goals.map((goal, index) => (
+                            <div
+                                key={index}
+                                className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-6"
+                            >
+                                <div className="flex items-start justify-between mb-6">
+                                    <div>
+                                        <h2 className="text-2xl font-semibold">
+                                            {goal.title}
+                                        </h2>
+
+                                        <p className="text-gray-400 mt-2">
+                                            {goal.category}
+                                        </p>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                                        <Clock3 size={16} />
+                                        {goal.deadline}
+                                    </div>
                                 </div>
 
-                                <button className="w-full py-4 rounded-xl bg-white text-black font-bold text-sm transition-all hover:bg-blue-500 hover:text-white flex items-center justify-center gap-2 group/btn">
-                                    Explore Case Study
-                                    <span className="transform transition-transform group-hover/btn:translate-x-1">→</span>
-                                </button>
+                                {/* Progress */}
+                                <div className="mb-3 flex items-center justify-between">
+                                    <span className="text-sm text-gray-400">
+                                        Progress
+                                    </span>
+
+                                    <span className="text-sm font-medium">
+                                        {goal.progress}%
+                                    </span>
+                                </div>
+
+                                <div className="w-full h-3 rounded-full bg-white/10 overflow-hidden">
+                                    <div
+                                        className={`h-full rounded-full bg-gradient-to-r ${goal.color}`}
+                                        style={{
+                                            width: `${goal.progress}%`,
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Side Card */}
+                    <div className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-6 h-fit">
+                        <h2 className="text-2xl font-semibold mb-6">
+                            Goal Insights
+                        </h2>
+
+                        <div className="space-y-5">
+                            <div className="bg-white/5 border border-white/5 rounded-2xl p-5">
+                                <p className="text-gray-400 text-sm mb-2">
+                                    Weekly Progress
+                                </p>
+
+                                <h3 className="text-3xl font-bold">82%</h3>
+                            </div>
+
+                            <div className="bg-white/5 border border-white/5 rounded-2xl p-5">
+                                <p className="text-gray-400 text-sm mb-2">
+                                    Most Productive
+                                </p>
+
+                                <h3 className="text-2xl font-semibold">
+                                    Tuesday
+                                </h3>
+                            </div>
+
+                            <div className="bg-white/5 border border-white/5 rounded-2xl p-5">
+                                <p className="text-gray-400 text-sm mb-2">
+                                    Next Milestone
+                                </p>
+
+                                <h3 className="text-2xl font-semibold">
+                                    90% Completion
+                                </h3>
                             </div>
                         </div>
                     </div>
-                ))}
+                </div>
             </div>
         </div>
     );
-};
-
-export default ProjectPage;
+}

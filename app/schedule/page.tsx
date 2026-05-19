@@ -1,160 +1,237 @@
-'use client';
+import {
+    CalendarDays,
+    Clock3,
+    Plus,
+    CheckCircle2,
+    MoreHorizontal,
+} from "lucide-react";
 
-import { useState, useEffect } from 'react';
-import { Plus, Clock, MapPin, Bell, ChevronRight, X, Calendar as CalendarIcon, CheckCircle2 } from 'lucide-react';
+const schedule = [
+    {
+        title: "UI Design Meeting",
+        time: "09:00 AM - 10:00 AM",
+        status: "Completed",
+        color: "bg-emerald-500/20 text-emerald-400",
+    },
+    {
+        title: "Frontend Development",
+        time: "11:30 AM - 02:00 PM",
+        status: "In Progress",
+        color: "bg-cyan-500/20 text-cyan-400",
+    },
+    {
+        title: "Workout Session",
+        time: "05:00 PM - 06:00 PM",
+        status: "Upcoming",
+        color: "bg-purple-500/20 text-purple-400",
+    },
+    {
+        title: "Project Review Call",
+        time: "08:00 PM - 09:00 PM",
+        status: "Upcoming",
+        color: "bg-orange-500/20 text-orange-400",
+    },
+];
 
 export default function SchedulePage() {
-    const [events, setEvents] = useState([
-        { id: 1, title: 'Family Dinner', time: '07:00 PM', location: 'Grand Hall', category: 'Social', color: 'border-blue-500' },
-        { id: 2, title: 'System Backup', time: '11:00 PM', location: 'Cloud Server', category: 'Technical', color: 'border-purple-500' },
-        { id: 3, title: 'Health Checkup', time: '09:00 AM', location: 'City Clinic', category: 'Medical', color: 'border-emerald-500' },
-    ]);
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [newEvent, setNewEvent] = useState({ title: '', time: '', location: '', category: 'Social' });
-    const [reminders, setReminders] = useState([
-        { id: 1, text: 'Renew Family Domain', completed: false },
-        { id: 2, text: 'Update Security Protocols', completed: true },
-    ]);
-
-    // Handle adding new event
-    const handleAddEvent = (e: React.FormEvent) => {
-        e.preventDefault();
-        const eventToAdd = {
-            ...newEvent,
-            id: Date.now(),
-            color: newEvent.category === 'Technical' ? 'border-purple-500' : 'border-blue-500'
-        };
-        setEvents([...events, eventToAdd].sort((a, b) => a.time.localeCompare(b.time)));
-        setIsModalOpen(false);
-        setNewEvent({ title: '', time: '', location: '', category: 'Social' });
-    };
-
-    const toggleReminder = (id: number) => {
-        setReminders(reminders.map(r => r.id === id ? { ...r, completed: !r.completed } : r));
-    };
-
     return (
-        <div className="space-y-8 animate-in fade-in duration-700 relative">
-            <header className="flex justify-between items-end">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-white">Family Schedule</h1>
-                    <p className="text-gray-500 text-sm mt-1">Timeline of upcoming activities and reminders.</p>
-                </div>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium transition-all flex items-center gap-2 shadow-lg shadow-blue-900/20 active:scale-95"
-                >
-                    <Plus className="w-4 h-4" /> New Event
-                </button>
-            </header>
+        <div className="min-h-screen bg-black text-white overflow-hidden relative">
+            {/* Background Glow */}
+            <div className="absolute top-0 left-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
+            <div className="absolute bottom-0 right-0 w-72 h-72 bg-purple-500/20 blur-[120px]" />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Main Timeline */}
-                <div className="lg:col-span-2 space-y-4">
-                    <div className="flex items-center gap-2 mb-6">
-                        <CalendarIcon className="w-4 h-4 text-blue-500" />
-                        <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500">Today, March 31</h2>
+            <div className="relative z-10 p-8 max-w-7xl mx-auto">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-10">
+                    <div>
+                        <h1 className="text-5xl font-bold tracking-tight">
+                            Schedule
+                        </h1>
+
+                        <p className="text-gray-400 mt-3">
+                            Manage your daily tasks and events
+                        </p>
                     </div>
 
-                    <div className="space-y-4">
-                        {events.map((event) => (
-                            <div key={event.id} className={`glass-card p-5 rounded-2xl border-l-4 ${event.color} flex items-center justify-between group cursor-pointer hover:bg-white/[0.04] transition-all`}>
-                                <div className="flex items-center gap-6">
-                                    <div className="text-center min-w-[65px]">
-                                        <p className="text-lg font-black text-white">{event.time.split(' ')[0]}</p>
-                                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">{event.time.split(' ')[1]}</p>
-                                    </div>
-                                    <div className="h-10 w-[1px] bg-white/10" />
-                                    <div>
-                                        <h3 className="font-bold text-white group-hover:text-blue-400 transition-colors">{event.title}</h3>
-                                        <div className="flex items-center gap-4 mt-1">
-                                            <span className="flex items-center gap-1.5 text-[11px] text-gray-500">
-                                                <MapPin className="w-3 h-3 text-blue-500/50" /> {event.location}
-                                            </span>
-                                            <span className="flex items-center gap-1.5 text-[11px] text-gray-500">
-                                                <Clock className="w-3 h-3 text-purple-500/50" /> {event.category}
-                                            </span>
+                    <button className="flex items-center gap-2 bg-white/10 border border-white/10 backdrop-blur-2xl px-5 py-3 rounded-2xl hover:bg-white/20 transition">
+                        <Plus size={18} />
+                        Add Schedule
+                    </button>
+                </div>
+
+                {/* Top Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    {/* Total Events */}
+                    <div className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-6">
+                        <div className="w-14 h-14 rounded-2xl bg-cyan-500/20 flex items-center justify-center mb-5">
+                            <CalendarDays
+                                className="text-cyan-400"
+                                size={28}
+                            />
+                        </div>
+
+                        <p className="text-gray-400 text-sm mb-2">
+                            Total Events
+                        </p>
+
+                        <h2 className="text-4xl font-bold">12</h2>
+                    </div>
+
+                    {/* Completed */}
+                    <div className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-6">
+                        <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 flex items-center justify-center mb-5">
+                            <CheckCircle2
+                                className="text-emerald-400"
+                                size={28}
+                            />
+                        </div>
+
+                        <p className="text-gray-400 text-sm mb-2">
+                            Completed
+                        </p>
+
+                        <h2 className="text-4xl font-bold">5</h2>
+                    </div>
+
+                    {/* Focus Time */}
+                    <div className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-6">
+                        <div className="w-14 h-14 rounded-2xl bg-purple-500/20 flex items-center justify-center mb-5">
+                            <Clock3
+                                className="text-purple-400"
+                                size={28}
+                            />
+                        </div>
+
+                        <p className="text-gray-400 text-sm mb-2">
+                            Focus Hours
+                        </p>
+
+                        <h2 className="text-4xl font-bold">6.5h</h2>
+                    </div>
+                </div>
+
+                {/* Schedule Layout */}
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    {/* Schedule List */}
+                    <div className="xl:col-span-2 bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-6">
+                        <div className="flex items-center justify-between mb-8">
+                            <div>
+                                <h2 className="text-3xl font-semibold">
+                                    Today’s Schedule
+                                </h2>
+
+                                <p className="text-gray-400 mt-2">
+                                    Your tasks and meetings for today
+                                </p>
+                            </div>
+
+                            <button className="px-4 py-2 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 transition">
+                                Today
+                            </button>
+                        </div>
+
+                        {/* Timeline */}
+                        <div className="space-y-5">
+                            {schedule.map((item, index) => (
+                                <div
+                                    key={index}
+                                    className="bg-white/5 border border-white/10 rounded-3xl p-5 flex items-center justify-between hover:bg-white/10 transition"
+                                >
+                                    <div className="flex items-start gap-4">
+                                        {/* Time Dot */}
+                                        <div className="mt-1 w-4 h-4 rounded-full bg-cyan-400" />
+
+                                        <div>
+                                            <h3 className="text-xl font-semibold">
+                                                {item.title}
+                                            </h3>
+
+                                            <p className="text-gray-400 mt-2">
+                                                {item.time}
+                                            </p>
                                         </div>
                                     </div>
-                                </div>
-                                <ChevronRight className="w-5 h-5 text-gray-700 group-hover:text-white transition-all transform group-hover:translate-x-1" />
-                            </div>
-                        ))}
-                    </div>
-                </div>
 
-                {/* Sidebar Reminders */}
-                <div className="space-y-6">
-                    <div className="glass-card p-6 rounded-3xl border border-white/5 bg-white/[0.01]">
-                        <h3 className="font-bold text-white mb-6 flex items-center gap-2 uppercase tracking-widest text-xs">
-                            <Bell className="w-4 h-4 text-blue-500" /> Reminders
-                        </h3>
-                        <div className="space-y-4">
-                            {reminders.map(reminder => (
-                                <div
-                                    key={reminder.id}
-                                    onClick={() => toggleReminder(reminder.id)}
-                                    className="flex items-center gap-3 cursor-pointer group"
-                                >
-                                    <div className={`p-0.5 rounded-md border transition-colors ${reminder.completed ? 'bg-blue-600 border-blue-600' : 'border-white/20 group-hover:border-blue-500'}`}>
-                                        <CheckCircle2 className={`w-4 h-4 ${reminder.completed ? 'text-white' : 'text-transparent'}`} />
+                                    <div className="flex items-center gap-4">
+                                        <span
+                                            className={`px-4 py-2 rounded-2xl text-sm font-medium ${item.color}`}
+                                        >
+                                            {item.status}
+                                        </span>
+
+                                        <MoreHorizontal
+                                            className="text-gray-500 cursor-pointer"
+                                            size={18}
+                                        />
                                     </div>
-                                    <p className={`text-sm transition-all ${reminder.completed ? 'text-gray-600 line-through' : 'text-gray-300'}`}>
-                                        {reminder.text}
-                                    </p>
                                 </div>
                             ))}
                         </div>
                     </div>
-                </div>
-            </div>
 
-            {/* ADD EVENT MODAL */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="glass-card w-full max-w-md p-8 rounded-[2.5rem] border border-white/10 shadow-2xl animate-in zoom-in-95 duration-300">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-bold text-white tracking-tight">New Schedule Event</h2>
-                            <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors">
-                                <X className="w-5 h-5 text-gray-500" />
-                            </button>
+                    {/* Side Panel */}
+                    <div className="space-y-6">
+                        {/* Calendar Card */}
+                        <div className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-6">
+                            <h2 className="text-2xl font-semibold mb-6">
+                                Calendar
+                            </h2>
+
+                            <div className="grid grid-cols-7 gap-3 text-center">
+                                {["S", "M", "T", "W", "T", "F", "S"].map(
+                                    (day, index) => (
+                                        <div
+                                            key={index}
+                                            className="text-gray-500 text-sm"
+                                        >
+                                            {day}
+                                        </div>
+                                    )
+                                )}
+
+                                {[12, 13, 14, 15, 16, 17, 18].map(
+                                    (date, index) => (
+                                        <div
+                                            key={index}
+                                            className={`h-11 flex items-center justify-center rounded-2xl text-sm cursor-pointer transition ${date === 15
+                                                    ? "bg-cyan-500 text-black font-semibold"
+                                                    : "bg-white/5 hover:bg-white/10"
+                                                }`}
+                                        >
+                                            {date}
+                                        </div>
+                                    )
+                                )}
+                            </div>
                         </div>
 
-                        <form onSubmit={handleAddEvent} className="space-y-4">
-                            <div>
-                                <label className="text-[10px] font-bold text-gray-500 uppercase mb-2 block">Event Title</label>
-                                <input required type="text" placeholder="e.g. Weekly Meeting" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-blue-500"
-                                    onChange={e => setNewEvent({ ...newEvent, title: e.target.value })} />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="text-[10px] font-bold text-gray-500 uppercase mb-2 block">Time</label>
-                                    <input required type="text" placeholder="09:00 AM" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-blue-500"
-                                        onChange={e => setNewEvent({ ...newEvent, time: e.target.value })} />
+                        {/* Progress Card */}
+                        <div className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-6">
+                            <h2 className="text-2xl font-semibold mb-6">
+                                Productivity
+                            </h2>
+
+                            <div className="flex items-center justify-center">
+                                <div className="relative w-44 h-44">
+                                    {/* Circle */}
+                                    <div className="absolute inset-0 rounded-full border-[12px] border-white/10" />
+
+                                    <div className="absolute inset-0 rounded-full border-[12px] border-cyan-400 border-t-transparent border-l-transparent rotate-45" />
+
+                                    {/* Center */}
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                        <h3 className="text-4xl font-bold">82%</h3>
+
+                                        <p className="text-gray-400 text-sm mt-2">
+                                            Completed
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="text-[10px] font-bold text-gray-500 uppercase mb-2 block">Category</label>
-                                    <select className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-blue-500"
-                                        onChange={e => setNewEvent({ ...newEvent, category: e.target.value })}>
-                                        <option value="Social">Social</option>
-                                        <option value="Technical">Technical</option>
-                                        <option value="Medical">Medical</option>
-                                    </select>
-                                </div>
                             </div>
-                            <div>
-                                <label className="text-[10px] font-bold text-gray-500 uppercase mb-2 block">Location</label>
-                                <input required type="text" placeholder="Virtual / Home" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-blue-500"
-                                    onChange={e => setNewEvent({ ...newEvent, location: e.target.value })} />
-                            </div>
-                            <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl mt-4 transition-all shadow-lg shadow-blue-900/40">
-                                Create Event
-                            </button>
-                        </form>
+                        </div>
                     </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 }

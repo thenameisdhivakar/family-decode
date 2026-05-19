@@ -1,215 +1,245 @@
-'use client';
-
-import { useEffect, useState } from 'react';
 import {
-    TrendingUp,
-    TrendingDown,
-    ShieldCheck,
-    Users,
-    Wallet,
-    ArrowUpRight,
-    Clock,
-    Lock,
-    Loader2,
     Activity,
-    CreditCard
-} from 'lucide-react';
+    DollarSign,
+    CheckCircle2,
+    CalendarDays,
+    ArrowUpRight,
+    Bell,
+    Clock3,
+    TrendingUp,
+} from "lucide-react";
+
+const stats = [
+    {
+        title: "Total Revenue",
+        value: "$48,240",
+        growth: "+12.5%",
+        icon: DollarSign,
+        color: "from-emerald-400 to-green-500",
+    },
+    {
+        title: "Tasks Completed",
+        value: "184",
+        growth: "+8.2%",
+        icon: CheckCircle2,
+        color: "from-cyan-400 to-blue-500",
+    },
+    {
+        title: "Active Projects",
+        value: "12",
+        growth: "+4.1%",
+        icon: Activity,
+        color: "from-purple-400 to-pink-500",
+    },
+    {
+        title: "Meetings",
+        value: "28",
+        growth: "+6.8%",
+        icon: CalendarDays,
+        color: "from-orange-400 to-amber-500",
+    },
+];
+
+const activities = [
+    {
+        title: "Updated analytics dashboard",
+        time: "10 mins ago",
+    },
+    {
+        title: "Completed UI design review",
+        time: "45 mins ago",
+    },
+    {
+        title: "Added new family member details",
+        time: "2 hours ago",
+    },
+    {
+        title: "Scheduled project meeting",
+        time: "Today, 5:30 PM",
+    },
+];
 
 export default function OverviewPage() {
-    const [userName, setUserName] = useState('Dhivakar');
-    const [isLoading, setIsLoading] = useState(true);
-    const [timeLeft, setTimeLeft] = useState(1499); // 24:59
-    const [recentActivity, setRecentActivity] = useState<any[]>([]);
-
-    const [stats, setStats] = useState({
-        totalBalance: 0,
-        monthlyInflow: 85000,
-        monthlyOutflow: 0,
-        activeMembers: 3 // Set to 3 for Mom, Dad, Dhivakar
-    });
-
-    useEffect(() => {
-        const loadDashboardData = () => {
-            const expenses = JSON.parse(localStorage.getItem('family_expenses') || '[]');
-            const totalOutflow = expenses.reduce((acc: number, curr: any) => acc + Number(curr.amount || 0), 0);
-
-            setStats(prev => ({
-                ...prev,
-                monthlyOutflow: totalOutflow,
-                totalBalance: 150000 - totalOutflow,
-            }));
-            setRecentActivity(expenses.slice(-4).reverse());
-            setIsLoading(false);
-        };
-
-        loadDashboardData();
-
-        // Sync with other pages (Inventory, Expenses, etc.)
-        window.addEventListener('storage', loadDashboardData);
-
-        // Auto-Lock Timer Logic
-        const timer = setInterval(() => {
-            setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-        }, 1000);
-
-        return () => {
-            window.removeEventListener('storage', loadDashboardData);
-            clearInterval(timer);
-        };
-    }, []);
-
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    };
-
-    if (isLoading) {
-        return (
-            <div className="h-[60vh] flex items-center justify-center">
-                <Loader2 className="animate-spin text-blue-500 w-8 h-8" />
-            </div>
-        );
-    }
-
     return (
-        <div className="space-y-8 animate-in fade-in duration-700">
+        <div className="min-h-screen bg-black text-white overflow-hidden relative">
+            {/* Background Glow */}
+            <div className="absolute top-0 left-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
+            <div className="absolute bottom-0 right-0 w-72 h-72 bg-purple-500/20 blur-[120px]" />
 
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold text-white">
-                        Welcome back, <span className="text-blue-500">{userName}</span>
-                    </h1>
-                    <div className="flex items-center gap-3 mt-2">
-                        <div className="flex items-center gap-2 px-2 py-1 bg-emerald-500/10 rounded-md">
-                            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">Focus on being productive instead of busy.</span>
-                        </div>
+            <div className="relative z-10 p-8 max-w-7xl mx-auto">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-10">
+                    <div>
+                        <h1 className="text-5xl font-bold tracking-tight">
+                            Overview
+                        </h1>
 
+                        <p className="text-gray-400 mt-3">
+                            Welcome back, here’s your dashboard summary
+                        </p>
                     </div>
+
+                    <button className="flex items-center gap-2 bg-white/10 border border-white/10 backdrop-blur-2xl px-5 py-3 rounded-2xl hover:bg-white/20 transition">
+                        <Bell size={18} />
+                        Notifications
+                    </button>
                 </div>
-            </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard
-                    title="Total Vault"
-                    value={`₹${stats.totalBalance.toLocaleString()}`}
-                    icon={<Wallet className="text-blue-500" />}
-                    trend="+2.4%"
-                />
-                <StatCard
-                    title="Monthly Inflow"
-                    value={`₹${stats.monthlyInflow.toLocaleString()}`}
-                    icon={<TrendingUp className="text-emerald-500" />}
-                    trend="+12%"
-                />
-                <StatCard
-                    title="Total Expenses"
-                    value={`₹${stats.monthlyOutflow.toLocaleString()}`}
-                    icon={<CreditCard className="text-rose-500" />}
-                    trend="Real-time"
-                />
-                <StatCard
-                    title="Active Nodes"
-                    value={stats.activeMembers.toString()}
-                    icon={<Users className="text-purple-500" />}
-                    trend="Stable"
-                />
-            </div>
+                {/* Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+                    {stats.map((item, index) => {
+                        const Icon = item.icon;
 
-            {/* Main Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-                {/* Ledger Activity */}
-                <div className="lg:col-span-2 rounded-[2rem] border border-white/5 bg-white/[0.02] p-8">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-2">
-                            <Activity className="w-4 h-4 text-blue-500" />
-                            <h3 className="text-sm font-bold text-white uppercase tracking-wider">Recent Ledger Activity</h3>
-                        </div>
-                    </div>
-
-                    <div className="space-y-3">
-                        {recentActivity.length > 0 ? (
-                            recentActivity.map((item, idx) => (
-                                <div key={idx} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all group">
-                                    <div className="flex items-center gap-4">
-                                        <div className="p-2.5 rounded-lg bg-black/40 text-gray-500 group-hover:text-blue-500 transition-colors">
-                                            <ArrowUpRight className="w-4 h-4" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-semibold text-white">{item.category || 'Transaction'}</p>
-                                            <p className="text-[10px] text-gray-500 font-medium">{item.date || 'Today'}</p>
-                                        </div>
+                        return (
+                            <div
+                                key={index}
+                                className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-6"
+                            >
+                                <div className="flex items-center justify-between mb-6">
+                                    <div
+                                        className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center`}
+                                    >
+                                        <Icon size={28} />
                                     </div>
-                                    <div className="text-right">
-                                        <p className="text-sm font-bold text-rose-500">-₹{Number(item.amount).toLocaleString()}</p>
-                                        <p className="text-[9px] text-gray-600 font-bold uppercase tracking-tighter">Verified</p>
+
+                                    <div className="flex items-center gap-1 text-green-400 text-sm">
+                                        <ArrowUpRight size={16} />
+                                        {item.growth}
                                     </div>
                                 </div>
-                            ))
-                        ) : (
-                            <div className="py-12 text-center text-gray-600 text-xs font-medium uppercase tracking-widest border border-dashed border-white/5 rounded-2xl">
-                                No recent transactions detected in local storage
+
+                                <p className="text-gray-400 text-sm mb-2">
+                                    {item.title}
+                                </p>
+
+                                <h2 className="text-4xl font-bold">
+                                    {item.value}
+                                </h2>
                             </div>
-                        )}
-                    </div>
+                        );
+                    })}
                 </div>
 
-                {/* Security & Lock Status */}
-                <div className="space-y-6">
-                    <div className="rounded-[2rem] border border-blue-500/10 bg-blue-500/[0.02] p-8">
-                        <ShieldCheck className="w-8 h-8 text-blue-500 mb-4" />
-                        <h3 className="font-bold text-white text-sm uppercase tracking-wide mb-2">Vault Integrity</h3>
-                        <p className="text-gray-500 text-xs leading-relaxed mb-6 font-medium">
-                            Your local node is synced. Data is mirrored across all family members.
-                        </p>
-                        <div className="space-y-3">
-                            <SecurityDetail label="Encryption" status="AES-256" />
-                            <SecurityDetail label="Auth" status="Session-Key" />
-                            <SecurityDetail label="Sync" status="Optimistic" />
+                {/* Main Layout */}
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    {/* Chart Section */}
+                    <div className="xl:col-span-2 bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-8">
+                        <div className="flex items-center justify-between mb-10">
+                            <div>
+                                <h2 className="text-3xl font-semibold">
+                                    Performance Overview
+                                </h2>
+
+                                <p className="text-gray-400 mt-2">
+                                    Weekly productivity insights
+                                </p>
+                            </div>
+
+                            <button className="px-4 py-2 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 transition">
+                                Weekly
+                            </button>
+                        </div>
+
+                        {/* Chart */}
+                        <div className="flex items-end gap-4 h-80">
+                            {[45, 70, 55, 90, 65, 100, 80].map(
+                                (height, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex-1 rounded-t-3xl bg-gradient-to-t from-cyan-500 to-purple-500"
+                                        style={{
+                                            height: `${height}%`,
+                                        }}
+                                    />
+                                )
+                            )}
+                        </div>
+
+                        {/* Days */}
+                        <div className="flex justify-between text-gray-500 mt-5 px-1">
+                            <span>Mon</span>
+                            <span>Tue</span>
+                            <span>Wed</span>
+                            <span>Thu</span>
+                            <span>Fri</span>
+                            <span>Sat</span>
+                            <span>Sun</span>
                         </div>
                     </div>
 
-                    <div className="rounded-2xl border border-white/5 bg-white/[0.01] p-6 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-white/5">
-                                <Lock className="w-4 h-4 text-gray-400" />
+                    {/* Right Section */}
+                    <div className="space-y-6">
+                        {/* Productivity Card */}
+                        <div className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-6">
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="w-14 h-14 rounded-2xl bg-cyan-500/20 flex items-center justify-center">
+                                    <TrendingUp
+                                        className="text-cyan-400"
+                                        size={28}
+                                    />
+                                </div>
+
+                                <div>
+                                    <h2 className="text-2xl font-semibold">
+                                        Productivity
+                                    </h2>
+
+                                    <p className="text-gray-400 text-sm mt-1">
+                                        This week
+                                    </p>
+                                </div>
                             </div>
-                            <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">Auto-Lock:</span>
+
+                            <h3 className="text-5xl font-bold mb-3">
+                                82%
+                            </h3>
+
+                            <p className="text-green-400 text-sm">
+                                +9% from last week
+                            </p>
                         </div>
-                        <span className={`text-xl font-mono font-bold ${timeLeft < 60 ? 'text-rose-500 animate-pulse' : 'text-blue-500'}`}>
-                            {formatTime(timeLeft)}
-                        </span>
+
+                        {/* Activity Feed */}
+                        <div className="bg-white/5 border border-white/10 backdrop-blur-2xl rounded-3xl p-6">
+                            <div className="flex items-center justify-between mb-8">
+                                <div>
+                                    <h2 className="text-2xl font-semibold">
+                                        Recent Activity
+                                    </h2>
+
+                                    <p className="text-gray-400 text-sm mt-2">
+                                        Latest updates
+                                    </p>
+                                </div>
+
+                                <Clock3 className="text-gray-400" size={20} />
+                            </div>
+
+                            <div className="space-y-5">
+                                {activities.map((activity, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex items-start gap-4"
+                                    >
+                                        {/* Dot */}
+                                        <div className="w-3 h-3 rounded-full bg-cyan-400 mt-2" />
+
+                                        <div>
+                                            <h3 className="font-medium">
+                                                {activity.title}
+                                            </h3>
+
+                                            <p className="text-sm text-gray-400 mt-1">
+                                                {activity.time}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    );
-}
-
-function StatCard({ title, value, icon, trend }: any) {
-    return (
-        <div className="rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-6 hover:bg-white/[0.04] transition-all group">
-            <div className="flex justify-between items-start mb-4">
-                <div className="p-2.5 rounded-xl bg-black/40 group-hover:bg-blue-500/10 transition-colors">{icon}</div>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${trend.includes('+') ? 'bg-emerald-500/10 text-emerald-500' : 'bg-blue-500/10 text-blue-500'}`}>
-                    {trend}
-                </span>
-            </div>
-            <p className="text-xs font-medium text-gray-500 mb-1">{title}</p>
-            <h2 className="text-2xl font-bold text-white tracking-tight">{value}</h2>
-        </div>
-    );
-}
-
-function SecurityDetail({ label, status }: any) {
-    return (
-        <div className="flex justify-between items-center py-2 border-b border-white/5">
-            <span className="text-[10px] font-medium text-gray-500 uppercase">{label}</span>
-            <span className="text-[10px] font-bold text-blue-400">{status}</span>
         </div>
     );
 }
