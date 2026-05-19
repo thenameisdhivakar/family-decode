@@ -32,7 +32,20 @@ export async function POST(req: NextRequest) {
 
         const body = await req.json();
 
-        const newEvent = await Event.create(body);
+        const newEvent = await Event.create({
+            title: body.title,
+            description: body.description,
+            date: body.date,
+            time: body.time,
+            location: body.location,
+
+            // IMPORTANT
+            priority: body.priority
+                ?.trim()
+                .toLowerCase(),
+
+            reminder: body.reminder || false,
+        });
 
         return NextResponse.json(newEvent, {
             status: 201,

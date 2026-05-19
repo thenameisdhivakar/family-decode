@@ -46,7 +46,7 @@ export default function CalendarPage() {
         time: "",
         location: "",
         date: "",
-        priority: "",
+        priority: "medium",
     });
 
     // PRIORITY COLORS
@@ -57,28 +57,22 @@ export default function CalendarPage() {
             badge: string;
         }
     > = {
-        High: {
-            card: "bg-red-950/40 border-red-500/30",
+        high: {
+            card: "bg-red-500/10 border-red-500/30",
             badge:
-                "!bg-red-500 !text-white !border-red-400 shadow-lg shadow-red-500/20",
+                "bg-red-500/20 text-red-300 border border-red-500/40 shadow-lg shadow-red-500/20",
         },
 
-        Medium: {
-            card: "bg-yellow-950/30 border-yellow-500/30",
+        medium: {
+            card: "bg-yellow-500/10 border-yellow-500/30",
             badge:
-                "!bg-yellow-500 !text-black !border-yellow-400 shadow-lg shadow-yellow-500/20",
+                "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 shadow-lg shadow-yellow-500/20",
         },
 
-        Low: {
-            card: "bg-green-950/30 border-green-500/30",
+        low: {
+            card: "bg-green-500/10 border-green-500/30",
             badge:
-                "!bg-green-500 !text-white !border-green-400 shadow-lg shadow-green-500/20",
-        },
-
-        Default: {
-            card: "bg-zinc-900 border-white/10",
-            badge:
-                "!bg-zinc-700 !text-white !border-zinc-600",
+                "bg-green-500/20 text-green-300 border border-green-500/40 shadow-lg shadow-green-500/20",
         },
     };
 
@@ -91,7 +85,19 @@ export default function CalendarPage() {
 
             const data = await res.json();
 
-            setEvents(data);
+            // NORMALIZE PRIORITY
+            const normalizedData = data.map(
+                (event: EventType) => ({
+                    ...event,
+                    priority: event.priority
+                        ? event.priority
+                            .trim()
+                            .toLowerCase()
+                        : "medium",
+                })
+            );
+
+            setEvents(normalizedData);
         } catch (error) {
             console.log(error);
         } finally {
@@ -116,26 +122,45 @@ export default function CalendarPage() {
         }
 
         try {
+            const payload = {
+                ...formData,
+                priority:
+                    formData.priority.toLowerCase(),
+            };
+
             const res = await fetch("/api/calendar", {
                 method: "POST",
 
                 headers: {
-                    "Content-Type": "application/json",
+                    "Content-Type":
+                        "application/json",
                 },
 
-                body: JSON.stringify(formData),
+                body: JSON.stringify(payload),
             });
 
             const data = await res.json();
 
-            setEvents((prev) => [data, ...prev]);
+            const normalizedEvent = {
+                ...data,
+                priority: data.priority
+                    ? data.priority
+                        .trim()
+                        .toLowerCase()
+                    : "medium",
+            };
+
+            setEvents((prev) => [
+                normalizedEvent,
+                ...prev,
+            ]);
 
             setFormData({
                 title: "",
                 time: "",
                 location: "",
                 date: "",
-                priority: "",
+                priority: "medium",
             });
 
             setOpenModal(false);
@@ -145,7 +170,9 @@ export default function CalendarPage() {
     };
 
     // DELETE EVENT
-    const handleDeleteEvent = async (id?: string) => {
+    const handleDeleteEvent = async (
+        id?: string
+    ) => {
         if (!id) return;
 
         try {
@@ -154,7 +181,9 @@ export default function CalendarPage() {
             });
 
             setEvents((prev) =>
-                prev.filter((event) => event._id !== id)
+                prev.filter(
+                    (event) => event._id !== id
+                )
             );
 
             setSelectedEventIndex(null);
@@ -167,9 +196,10 @@ export default function CalendarPage() {
 
     const year = currentDate.getFullYear();
 
-    const monthName = currentDate.toLocaleString("default", {
-        month: "long",
-    });
+    const monthName =
+        currentDate.toLocaleString("default", {
+            month: "long",
+        });
 
     const firstDayOfMonth = new Date(
         year,
@@ -186,34 +216,52 @@ export default function CalendarPage() {
     const calendarDays = useMemo(() => {
         const days = [];
 
-        for (let i = 0; i < firstDayOfMonth; i++) {
+        for (
+            let i = 0;
+            i < firstDayOfMonth;
+            i++
+        ) {
             days.push(null);
         }
 
-        for (let day = 1; day <= daysInMonth; day++) {
+        for (
+            let day = 1;
+            day <= daysInMonth;
+            day++
+        ) {
             days.push(day);
         }
 
         return days;
     }, [firstDayOfMonth, daysInMonth]);
 
-    const filteredEvents = events.filter((event) => {
-        const matchesPriority =
-            priorityFilter === "All" ||
-            event.priority === priorityFilter;
+    const filteredEvents = events.filter(
+        (event) => {
+            const matchesPriority =
+                priorityFilter === "All" ||
+                event.priority ===
+                priorityFilter.toLowerCase();
 
-        const matchesDate =
-            !dateFilter || event.date === dateFilter;
+            const matchesDate =
+                !dateFilter ||
+                event.date === dateFilter;
 
-        return matchesPriority && matchesDate;
-    });
+            return (
+                matchesPriority && matchesDate
+            );
+        }
+    );
 
     const previousMonth = () => {
-        setCurrentDate(new Date(year, month - 1, 1));
+        setCurrentDate(
+            new Date(year, month - 1, 1)
+        );
     };
 
     const nextMonth = () => {
-        setCurrentDate(new Date(year, month + 1, 1));
+        setCurrentDate(
+            new Date(year, month + 1, 1)
+        );
     };
 
     const today = new Date();
@@ -247,7 +295,9 @@ export default function CalendarPage() {
                     </div>
 
                     <button
-                        onClick={() => setOpenModal(true)}
+                        onClick={() =>
+                            setOpenModal(true)
+                        }
                         className="flex items-center justify-center gap-2 bg-white/10 border border-white/10 px-5 py-3 rounded-2xl hover:bg-white/20 transition"
                     >
                         <Plus size={18} />
@@ -273,15 +323,21 @@ export default function CalendarPage() {
 
                             <div className="flex items-center gap-3">
                                 <button
-                                    onClick={previousMonth}
+                                    onClick={
+                                        previousMonth
+                                    }
                                     className="w-11 h-11 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 flex items-center justify-center"
                                 >
-                                    <ChevronLeft size={18} />
+                                    <ChevronLeft
+                                        size={18}
+                                    />
                                 </button>
 
                                 <button
                                     onClick={() =>
-                                        setCurrentDate(new Date())
+                                        setCurrentDate(
+                                            new Date()
+                                        )
                                     }
                                     className="px-4 py-2 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20"
                                 >
@@ -292,7 +348,9 @@ export default function CalendarPage() {
                                     onClick={nextMonth}
                                     className="w-11 h-11 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 flex items-center justify-center"
                                 >
-                                    <ChevronRight size={18} />
+                                    <ChevronRight
+                                        size={18}
+                                    />
                                 </button>
                             </div>
                         </div>
@@ -318,79 +376,115 @@ export default function CalendarPage() {
                         </div>
 
                         {/* Calendar Grid */}
-                        <div className="grid grid-cols-7 gap-4 ">
-                            {calendarDays.map((day, index) => {
-                                if (!day) {
+                        <div className="grid grid-cols-7 gap-4">
+                            {calendarDays.map(
+                                (day, index) => {
+                                    if (!day) {
+                                        return (
+                                            <div
+                                                key={
+                                                    index
+                                                }
+                                                className="h-32"
+                                            />
+                                        );
+                                    }
+
+                                    const currentDateString = `${year}-${String(
+                                        month + 1
+                                    ).padStart(
+                                        2,
+                                        "0"
+                                    )}-${String(
+                                        day
+                                    ).padStart(
+                                        2,
+                                        "0"
+                                    )}`;
+
+                                    const dayEvents =
+                                        events.filter(
+                                            (
+                                                event
+                                            ) =>
+                                                event.date ===
+                                                currentDateString
+                                        );
+
                                     return (
                                         <div
-                                            key={index}
-                                            className="h-32"
-                                        />
+                                            key={
+                                                index
+                                            }
+                                            className={`h-32 rounded-3xl border p-3 overflow-hidden transition ${isToday(
+                                                day
+                                            )
+                                                    ? "bg-cyan-500 text-black border-cyan-400"
+                                                    : "bg-white/5 border-white/10 hover:bg-white/10"
+                                                }`}
+                                        >
+                                            {/* Day */}
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="font-semibold">
+                                                    {
+                                                        day
+                                                    }
+                                                </span>
+
+                                                {isToday(
+                                                    day
+                                                ) && (
+                                                        <div className="w-2 h-2 rounded-full bg-black" />
+                                                    )}
+                                            </div>
+
+                                            {/* Event Badges */}
+                                            <div className="space-y-1">
+                                                {dayEvents
+                                                    .slice(
+                                                        0,
+                                                        2
+                                                    )
+                                                    .map(
+                                                        (
+                                                            event,
+                                                            i
+                                                        ) => {
+                                                            const style =
+                                                                priorityStyles[
+                                                                event.priority
+                                                                ] ||
+                                                                priorityStyles.medium;
+
+                                                            return (
+                                                                <div
+                                                                    key={
+                                                                        i
+                                                                    }
+                                                                    className={`text-[10px] px-2.5 py-1 rounded-full font-semibold truncate border backdrop-blur-sm ${style.badge}`}
+                                                                >
+                                                                    {
+                                                                        event.title
+                                                                    }
+                                                                </div>
+                                                            );
+                                                        }
+                                                    )}
+
+                                                {dayEvents.length >
+                                                    2 && (
+                                                        <p className="text-[10px] text-gray-400">
+                                                            +
+                                                            {dayEvents.length -
+                                                                2}{" "}
+                                                            more
+                                                        </p>
+                                                    )}
+                                            </div>
+                                        </div>
                                     );
                                 }
-
-                                const currentDateString = `${year}-${String(
-                                    month + 1
-                                ).padStart(2, "0")}-${String(day).padStart(
-                                    2,
-                                    "0"
-                                )}`;
-
-                                const dayEvents = events.filter(
-                                    (event) =>
-                                        event.date === currentDateString
-                                );
-
-                                return (
-                                    <div
-                                        key={index}
-                                        className={`h-32 rounded-3xl border p-3 overflow-hidden transition ${isToday(day)
-                                            ? "bg-cyan-500 text-black border-cyan-400"
-                                            : "bg-white/5 border-white/10 hover:bg-white/10"
-                                            }`}
-                                    >
-                                        {/* Day */}
-                                        <div className="flex items-center justify-between mb-2">
-                                            <span className="font-semibold">
-                                                {day}
-                                            </span>
-
-                                            {isToday(day) && (
-                                                <div className="w-2 h-2 rounded-full bg-black" />
-                                            )}
-                                        </div>
-
-                                        {/* Event Badges */}
-                                        <div className="space-y-1">
-                                            {dayEvents
-                                                .slice(0, 2)
-                                                .map((event, i) => {
-                                                    const style =
-                                                        priorityStyles[
-                                                        event.priority
-                                                        ] ||
-                                                        priorityStyles.Default;
-
-                                                    return (
-                                                        <div
-                                                            key={i}
-                                                            className={`text-[10px] px-2 py-1 rounded-lg font-semibold border truncate ${style.badge}`}
-                                                        >
-                                                            {event.title}
-                                                        </div>
-                                                    );
-                                                })}
-
-                                            {dayEvents.length > 2 && (
-                                                <p className="text-[10px] text-gray-400">
-                                                    +
-                                                    {dayEvents.length - 2} more
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                            )}
                         </div>
                     </div>
 
@@ -424,7 +518,9 @@ export default function CalendarPage() {
                             </div>
 
                             <p className="text-gray-400">
-                                You have {events.length} scheduled
+                                You have{" "}
+                                {events.length}{" "}
+                                scheduled
                                 events.
                             </p>
                         </div>
@@ -433,108 +529,134 @@ export default function CalendarPage() {
                         <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-2xl font-semibold">
-                                    Upcoming Events
+                                    Upcoming
+                                    Events
                                 </h2>
 
                                 <button
                                     onClick={() =>
-                                        setShowFilters(!showFilters)
+                                        setShowFilters(
+                                            !showFilters
+                                        )
                                     }
                                     className="w-11 h-11 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 flex items-center justify-center"
                                 >
-                                    <Filter size={18} />
+                                    <Filter
+                                        size={18}
+                                    />
                                 </button>
                             </div>
 
                             {/* Events */}
-                            <div className="space-y-4 max-h-[700px] overflow-auto pr-2 ">
+                            <div className="space-y-4 max-h-[700px] overflow-auto pr-2">
                                 {loading ? (
                                     <div className="text-center text-gray-500 py-10">
                                         Loading...
                                     </div>
-                                ) : filteredEvents.length === 0 ? (
+                                ) : filteredEvents.length ===
+                                    0 ? (
                                     <div className="text-center text-gray-500 py-10">
-                                        No events found
+                                        No events
+                                        found
                                     </div>
                                 ) : (
-                                    filteredEvents.map((event, index) => {
-                                        const style =
-                                            event.priority === "High"
-                                                ? {
-                                                    card: "bg-red-500/10 border-red-500/20",
-                                                    badge:
-                                                        "bg-red-500/15 text-red-300 border-red-500/20",
-                                                }
-                                                : event.priority === "Medium"
-                                                    ? {
-                                                        card: "bg-yellow-500/10 border-yellow-500/20",
-                                                        badge:
-                                                            "bg-yellow-500/15 text-yellow-300 border-yellow-500/20",
+                                    filteredEvents.map(
+                                        (
+                                            event,
+                                            index
+                                        ) => {
+                                            const style =
+                                                priorityStyles[
+                                                event.priority
+                                                ] ||
+                                                priorityStyles.medium;
+
+                                            return (
+                                                <div
+                                                    key={
+                                                        event._id
                                                     }
-                                                    : event.priority === "Low"
-                                                        ? {
-                                                            card: "bg-green-500/10 border-green-500/20",
-                                                            badge:
-                                                                "bg-green-500/15 text-green-300 border-green-500/20",
+                                                    onClick={() =>
+                                                        setSelectedEventIndex(
+                                                            index
+                                                        )
+                                                    }
+                                                    className={`rounded-3xl p-5 transition cursor-pointer border ${style.card}`}
+                                                >
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div>
+                                                            <h3 className="text-lg font-semibold">
+                                                                {
+                                                                    event.title
+                                                                }
+                                                            </h3>
+
+                                                            <span className="text-xs text-gray-400">
+                                                                {
+                                                                    event.date
+                                                                }
+                                                            </span>
+                                                        </div>
+
+                                                        {/* PRIORITY BADGE */}
+                                                        <div
+                                                            className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${style.badge}`}
+                                                        >
+                                                            {
+                                                                event.priority
+                                                            }
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2 text-gray-400 text-sm mt-4">
+                                                        <Clock3
+                                                            size={
+                                                                15
+                                                            }
+                                                        />
+                                                        {
+                                                            event.time
                                                         }
-                                                        : {
-                                                            card: "bg-zinc-900 border-white/10",
-                                                            badge:
-                                                                "bg-zinc-800 text-white border-white/10",
-                                                        };
-
-                                        return (
-                                            <div
-                                                key={event._id}
-                                                onClick={() =>
-                                                    setSelectedEventIndex(index)
-                                                }
-                                                className={`rounded-3xl p-5 transition cursor-pointer border ${style.card}`}
-                                            >
-                                                <div className="flex items-start justify-between gap-3">
-                                                    <div>
-                                                        <h3 className="text-lg font-semibold">
-                                                            {event.title}
-                                                        </h3>
-
-                                                        <span className="text-xs text-gray-400">
-                                                            {event.date}
-                                                        </span>
                                                     </div>
 
-                                                    <div
-                                                        className={`px-3 py-1 rounded-xl text-xs font-semibold border ${style.badge}`}
-                                                    >
-                                                        {event.priority}
+                                                    <div className="flex items-center gap-2 text-gray-400 text-sm mt-2">
+                                                        <MapPin
+                                                            size={
+                                                                15
+                                                            }
+                                                        />
+                                                        {
+                                                            event.location
+                                                        }
                                                     </div>
+
+                                                    {selectedEventIndex ===
+                                                        index && (
+                                                            <button
+                                                                onClick={(
+                                                                    e
+                                                                ) => {
+                                                                    e.stopPropagation();
+
+                                                                    handleDeleteEvent(
+                                                                        event._id
+                                                                    );
+                                                                }}
+                                                                className="mt-5 w-full bg-red-500/15 border border-red-500/20 hover:bg-red-500/25 text-red-400 py-3 rounded-2xl flex items-center justify-center gap-2 transition"
+                                                            >
+                                                                <Trash2
+                                                                    size={
+                                                                        16
+                                                                    }
+                                                                />
+                                                                Delete
+                                                                Event
+                                                            </button>
+                                                        )}
                                                 </div>
-
-                                                <div className="flex items-center gap-2 text-gray-400 text-sm mt-4">
-                                                    <Clock3 size={15} />
-                                                    {event.time}
-                                                </div>
-
-                                                <div className="flex items-center gap-2 text-gray-400 text-sm mt-2">
-                                                    <MapPin size={15} />
-                                                    {event.location}
-                                                </div>
-
-                                                {selectedEventIndex === index && (
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-
-                                                            handleDeleteEvent(event._id);
-                                                        }}
-                                                        className="mt-5 w-full bg-red-500/15 border border-red-500/20 hover:bg-red-500/25 text-red-400 py-3 rounded-2xl flex items-center justify-center gap-2 transition"
-                                                    >
-                                                        <Trash2 size={16} />
-                                                        Delete Event
-                                                    </button>
-                                                )}
-                                            </div>
-                                        );
-                                    })
+                                            );
+                                        }
+                                    )
                                 )}
                             </div>
                         </div>
@@ -569,7 +691,9 @@ export default function CalendarPage() {
                                 onChange={(e) =>
                                     setFormData({
                                         ...formData,
-                                        title: e.target.value,
+                                        title:
+                                            e.target
+                                                .value,
                                     })
                                 }
                                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none"
@@ -578,12 +702,15 @@ export default function CalendarPage() {
                             <input
                                 type="text"
                                 placeholder="Location"
-                                value={formData.location}
+                                value={
+                                    formData.location
+                                }
                                 onChange={(e) =>
                                     setFormData({
                                         ...formData,
                                         location:
-                                            e.target.value,
+                                            e.target
+                                                .value,
                                     })
                                 }
                                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none"
@@ -592,11 +719,15 @@ export default function CalendarPage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <input
                                     type="date"
-                                    value={formData.date}
+                                    value={
+                                        formData.date
+                                    }
                                     onChange={(e) =>
                                         setFormData({
                                             ...formData,
-                                            date: e.target.value,
+                                            date: e
+                                                .target
+                                                .value,
                                         })
                                     }
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none"
@@ -604,11 +735,15 @@ export default function CalendarPage() {
 
                                 <input
                                     type="time"
-                                    value={formData.time}
+                                    value={
+                                        formData.time
+                                    }
                                     onChange={(e) =>
                                         setFormData({
                                             ...formData,
-                                            time: e.target.value,
+                                            time: e
+                                                .target
+                                                .value,
                                         })
                                     }
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none"
@@ -616,35 +751,36 @@ export default function CalendarPage() {
                             </div>
 
                             <select
-                                value={formData.priority}
+                                value={
+                                    formData.priority
+                                }
                                 onChange={(e) =>
                                     setFormData({
                                         ...formData,
                                         priority:
-                                            e.target.value,
+                                            e.target
+                                                .value,
                                     })
                                 }
                                 className="w-full bg-zinc-900 border border-white/10 rounded-2xl px-4 py-3 outline-none"
                             >
-                                <option value="">
-                                    Priority
-                                </option>
-
-                                <option value="High">
+                                <option value="high">
                                     High
                                 </option>
 
-                                <option value="Medium">
+                                <option value="medium">
                                     Medium
                                 </option>
 
-                                <option value="Low">
+                                <option value="low">
                                     Low
                                 </option>
                             </select>
 
                             <button
-                                onClick={handleAddEvent}
+                                onClick={
+                                    handleAddEvent
+                                }
                                 className="w-full mt-4 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold py-3 rounded-2xl transition"
                             >
                                 Create Event

@@ -25,6 +25,15 @@ const EventSchema = new mongoose.Schema(
             type: String,
         },
 
+        // ADD THIS
+        priority: {
+            type: String,
+
+            enum: ["high", "medium", "low"],
+
+            default: "medium",
+        },
+
         reminder: {
             type: Boolean,
             default: false,
