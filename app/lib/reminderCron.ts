@@ -21,12 +21,33 @@ cron.schedule("* * * * *", async () => {
             reminder: false,
         });
 
-        const now = new Date();
+        // INDIA TIME
+        const now = new Date(
+            new Date().toLocaleString("en-US", {
+                timeZone: "Asia/Kolkata",
+            })
+        );
 
         for (const event of events) {
-            // EVENT DATE + TIME
+            // SPLIT DATE
+            const [year, month, day] =
+                event.date
+                    .split("-")
+                    .map(Number);
+
+            // SPLIT TIME
+            const [hours, minutes] =
+                event.time
+                    .split(":")
+                    .map(Number);
+
+            // CREATE EVENT DATE
             const eventDateTime = new Date(
-                `${event.date}T${event.time}:00`
+                year,
+                month - 1,
+                day,
+                hours,
+                minutes
             );
 
             // DIFFERENCE IN MINUTES
@@ -53,8 +74,9 @@ cron.schedule("* * * * *", async () => {
                 const message =
                     await client.messages.create({
                         body: `⏰ Reminder: ${event.title} starts in 2 minutes at ${event.time}`,
-                        from: process.env
-                            .TWILIO_WHATSAPP_NUMBER!,
+                        from:
+                            process.env
+                                .TWILIO_WHATSAPP_NUMBER!,
                         to: `whatsapp:${event.phone}`,
                     });
 
