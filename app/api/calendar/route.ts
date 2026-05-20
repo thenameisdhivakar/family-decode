@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 
 import { connectDB } from "../../lib/mongodb";
 import Event from "../../models/Calendar";
+import "../../lib/reminderCron";
 
 export async function GET() {
     try {
@@ -45,6 +46,8 @@ export async function POST(req: NextRequest) {
                 .toLowerCase(),
 
             reminder: body.reminder || false,
+            // ADD THIS
+            phone: body.phone,
         });
 
         return NextResponse.json(newEvent, {

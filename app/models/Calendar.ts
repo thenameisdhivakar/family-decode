@@ -24,7 +24,11 @@ const EventSchema = new mongoose.Schema(
         location: {
             type: String,
         },
-
+        // ADD THIS
+        phone: {
+            type: String,
+            required: true,
+        },
         // ADD THIS
         priority: {
             type: String,

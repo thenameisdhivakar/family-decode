@@ -21,6 +21,9 @@ type EventType = {
     location: string;
     priority: string;
     date: string;
+
+    // WHATSAPP
+    phone?: string;
 };
 
 export default function CalendarPage() {
@@ -47,6 +50,9 @@ export default function CalendarPage() {
         location: "",
         date: "",
         priority: "medium",
+
+        // WHATSAPP
+        phone: "",
     });
 
     // PRIORITY COLORS
@@ -116,8 +122,11 @@ export default function CalendarPage() {
             !formData.time ||
             !formData.location ||
             !formData.date ||
-            !formData.priority
+            !formData.priority ||
+            !formData.phone
         ) {
+            alert("Please fill all fields");
+
             return;
         }
 
@@ -161,6 +170,7 @@ export default function CalendarPage() {
                 location: "",
                 date: "",
                 priority: "medium",
+                phone: "",
             });
 
             setOpenModal(false);
@@ -423,22 +433,14 @@ export default function CalendarPage() {
                                                     : "bg-white/5 border-white/10 hover:bg-white/10"
                                                 }`}
                                         >
-                                            {/* Day */}
                                             <div className="flex items-center justify-between mb-2">
                                                 <span className="font-semibold">
                                                     {
                                                         day
                                                     }
                                                 </span>
-
-                                                {isToday(
-                                                    day
-                                                ) && (
-                                                        <div className="w-2 h-2 rounded-full bg-black" />
-                                                    )}
                                             </div>
 
-                                            {/* Event Badges */}
                                             <div className="space-y-1">
                                                 {dayEvents
                                                     .slice(
@@ -447,8 +449,7 @@ export default function CalendarPage() {
                                                     )
                                                     .map(
                                                         (
-                                                            event,
-                                                            i
+                                                            event
                                                         ) => {
                                                             const style =
                                                                 priorityStyles[
@@ -459,7 +460,7 @@ export default function CalendarPage() {
                                                             return (
                                                                 <div
                                                                     key={
-                                                                        i
+                                                                        event._id
                                                                     }
                                                                     className={`text-[10px] px-2.5 py-1 rounded-full font-semibold truncate border backdrop-blur-sm ${style.badge}`}
                                                                 >
@@ -490,7 +491,6 @@ export default function CalendarPage() {
 
                     {/* Sidebar */}
                     <div className="space-y-6">
-                        {/* Today */}
                         <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
                             <div className="flex items-center gap-4 mb-5">
                                 <div className="w-14 h-14 rounded-2xl bg-cyan-500/20 flex items-center justify-center">
@@ -520,8 +520,7 @@ export default function CalendarPage() {
                             <p className="text-gray-400">
                                 You have{" "}
                                 {events.length}{" "}
-                                scheduled
-                                events.
+                                scheduled events.
                             </p>
                         </div>
 
@@ -547,7 +546,6 @@ export default function CalendarPage() {
                                 </button>
                             </div>
 
-                            {/* Events */}
                             <div className="space-y-4 max-h-[700px] overflow-auto pr-2">
                                 {loading ? (
                                     <div className="text-center text-gray-500 py-10">
@@ -598,7 +596,6 @@ export default function CalendarPage() {
                                                             </span>
                                                         </div>
 
-                                                        {/* PRIORITY BADGE */}
                                                         <div
                                                             className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${style.badge}`}
                                                         >
@@ -709,6 +706,24 @@ export default function CalendarPage() {
                                     setFormData({
                                         ...formData,
                                         location:
+                                            e.target
+                                                .value,
+                                    })
+                                }
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none"
+                            />
+
+                            {/* WHATSAPP NUMBER */}
+                            <input
+                                type="text"
+                                placeholder="WhatsApp Number (+91xxxxxxxxxx)"
+                                value={
+                                    formData.phone
+                                }
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        phone:
                                             e.target
                                                 .value,
                                     })
